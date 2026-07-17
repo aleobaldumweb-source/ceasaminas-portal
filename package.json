@@ -1,0 +1,38 @@
+{
+  "name": "ceasaminas-portal",
+  "version": "0.2.0",
+  "private": true,
+  "packageManager": "pnpm@11.13.1",
+  "engines": {
+    "node": ">=20.19.0 <27"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "check": "pnpm lint && pnpm typecheck && pnpm build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky",
+    "db:generate": "pnpm --filter @ceasaminas/database db:generate",
+    "db:migrate": "pnpm --filter @ceasaminas/database db:migrate",
+    "db:studio": "pnpm --filter @ceasaminas/database db:studio",
+    "infra:up": "docker compose up -d postgres redis mailpit minio",
+    "infra:down": "docker compose down",
+    "infra:logs": "docker compose logs -f --tail=100",
+    "infra:status": "docker compose ps"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.9.5",
+    "turbo": "^2.10.5",
+    "typescript": "^5.9.3"
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs,ts,tsx,json,css,md,yml,yaml}": "prettier --write"
+  }
+}

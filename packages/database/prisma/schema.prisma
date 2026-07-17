@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum PublicationStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("users")
+}
+
+model NewsArticle {
+  id          String            @id @default(cuid())
+  title       String
+  slug        String            @unique
+  summary     String
+  content     String
+  status      PublicationStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([status, publishedAt])
+  @@map("news_articles")
+}
+
+model MarketPrice {
+  id          String   @id @default(cuid())
+  productName String
+  unit        String
+  minPrice    Decimal  @db.Decimal(12, 2)
+  avgPrice    Decimal  @db.Decimal(12, 2)
+  maxPrice    Decimal  @db.Decimal(12, 2)
+  referenceAt DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([productName, referenceAt])
+  @@map("market_prices")
+}
