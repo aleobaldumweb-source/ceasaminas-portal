@@ -1,75 +1,93 @@
 import Link from 'next/link';
+import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 
 const metrics = [
-  { value: '120+', label: 'produtos monitorados' },
+  { value: '120+', label: 'produtos acompanhados' },
   { value: '6', label: 'unidades em Minas Gerais' },
-  { value: '24h', label: 'informação de mercado' },
-  { value: '100%', label: 'compromisso com transparência' },
+  { value: '24h', label: 'acesso à informação' },
+  { value: '100%', label: 'compromisso público' },
 ];
 
-type Service = {
-  title: string;
-  description: string;
-  href: `#${string}`;
-};
-
-const services: Service[] = [
+const services = [
   {
+    number: '01',
     title: 'Mercado hoje',
-    description: 'Cotações, históricos e tendências dos principais produtos.',
-    href: '#mercado',
+    description: 'Cotações, históricos, sazonalidade e referências para decisões mais seguras.',
+    href: '/mercado',
   },
   {
+    number: '02',
     title: 'Licitações',
-    description: 'Editais, avisos, anexos e acompanhamento dos processos.',
-    href: '#licitacoes',
+    description: 'Editais, avisos, anexos, resultados e acompanhamento dos processos.',
+    href: '/licitacoes',
   },
   {
+    number: '03',
     title: 'Transparência',
-    description: 'Contratos, despesas, receitas e dados abertos em um só lugar.',
-    href: '#transparencia',
+    description: 'Contratos, despesas, governança, acesso à informação e dados públicos.',
+    href: '/transparencia',
   },
-];
+] as const;
+
+const news = [
+  {
+    category: 'Institucional',
+    title: 'Ceasaminas avança na modernização de seus serviços digitais',
+    date: '17 jul. 2026',
+  },
+  {
+    category: 'Mercado',
+    title: 'Informação de preços ganha navegação simplificada no novo portal',
+    date: '16 jul. 2026',
+  },
+  {
+    category: 'Serviço público',
+    title: 'Nova área reúne licitações, transparência e atendimento ao cidadão',
+    date: '15 jul. 2026',
+  },
+] as const;
 
 export default function HomePage() {
   return (
     <>
       <Header />
-
       <main id="conteudo">
         <section className="hero" aria-labelledby="hero-title">
-          <div className="hero-copy">
-            <p className="eyebrow">Ceasaminas Digital</p>
-
-            <h1 id="hero-title">Abastecimento, inteligência de mercado e serviço público.</h1>
-
-            <p className="hero-lead">
-              Um novo portal para conectar produtores, comerciantes, empresas e cidadãos com dados
-              claros, serviços rápidos e transparência.
-            </p>
-
-            <div className="hero-actions">
-              <Link className="button button-primary" href="#mercado">
-                Consultar mercado
-              </Link>
-
-              <Link className="button button-secondary" href="#transparencia">
-                Acessar transparência
-              </Link>
+          <div className="container hero-grid">
+            <div className="hero-copy">
+              <p className="eyebrow">Ceasaminas Digital</p>
+              <h1 id="hero-title">Abastecimento, inteligência de mercado e serviço público.</h1>
+              <p className="hero-lead">
+                Um portal para conectar produtores, comerciantes, empresas e cidadãos com dados
+                claros, serviços rápidos e transparência.
+              </p>
+              <div className="hero-actions">
+                <Link className="button button-primary" href="/mercado">
+                  Consultar mercado
+                </Link>
+                <Link className="button button-secondary" href="/transparencia">
+                  Acessar transparência
+                </Link>
+              </div>
             </div>
+            <aside className="market-snapshot" aria-label="Resumo de mercado">
+              <p className="eyebrow">Painel de mercado</p>
+              <h2>Dados que apoiam decisões.</h2>
+              <div className="snapshot-row">
+                <span>Produtos monitorados</span>
+                <strong>120+</strong>
+              </div>
+              <div className="snapshot-row">
+                <span>Unidades de referência</span>
+                <strong>6</strong>
+              </div>
+              <Link href="/mercado">Abrir painel completo →</Link>
+            </aside>
           </div>
-
-          <aside className="hero-panel" aria-label="Acesso rápido">
-            <p>Atualização do portal</p>
-
-            <strong>Protótipo local — Sprint 0.1</strong>
-
-            <span>Base visual, infraestrutura e API inicial.</span>
-          </aside>
         </section>
 
-        <section className="metrics" aria-label="Indicadores em destaque">
+        <section className="metrics container" aria-label="Indicadores em destaque">
           {metrics.map((metric) => (
             <article key={metric.label}>
               <strong>{metric.value}</strong>
@@ -78,22 +96,23 @@ export default function HomePage() {
           ))}
         </section>
 
-        <section className="section" id="mercado">
-          <div className="section-heading">
-            <p className="eyebrow">Serviços essenciais</p>
-
-            <h2>Encontre rapidamente o que precisa</h2>
+        <section className="section container">
+          <div className="section-heading split-heading">
+            <div>
+              <p className="eyebrow">Serviços essenciais</p>
+              <h2>Encontre rapidamente o que precisa.</h2>
+            </div>
+            <p>
+              Arquitetura orientada a serviços públicos, informação de mercado e acesso
+              transparente.
+            </p>
           </div>
-
           <div className="service-grid">
-            {services.map((service, index) => (
-              <article key={service.href} className="service-card" id={service.href.slice(1)}>
-                <span>{String(index + 1).padStart(2, '0')}</span>
-
+            {services.map((service) => (
+              <article className="service-card" key={service.href}>
+                <span>{service.number}</span>
                 <h3>{service.title}</h3>
-
                 <p>{service.description}</p>
-
                 <Link href={service.href}>
                   Explorar serviço <span aria-hidden="true">→</span>
                 </Link>
@@ -102,24 +121,47 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="editorial" id="noticias">
-          <div>
-            <p className="eyebrow">Informação pública</p>
-
-            <h2>Notícias e comunicados com hierarquia editorial clara.</h2>
+        <section className="feature-band">
+          <div className="container feature-grid">
+            <div>
+              <p className="eyebrow">Rede Ceasaminas</p>
+              <h2>Presença regional com informação integrada.</h2>
+            </div>
+            <div className="unit-list">
+              {[
+                'Contagem',
+                'Barbacena',
+                'Caratinga',
+                'Governador Valadares',
+                'Juiz de Fora',
+                'Uberlândia',
+              ].map((unit) => (
+                <span key={unit}>{unit}</span>
+              ))}
+            </div>
           </div>
+        </section>
 
-          <p>
-            Esta primeira versão aplica navegação institucional, tipografia editorial e
-            acessibilidade como base. O CMS, as notícias reais e os filtros serão conectados nas
-            próximas sprints.
-          </p>
+        <section className="section container">
+          <div className="section-heading">
+            <p className="eyebrow">Notícias e comunicados</p>
+            <h2>Informação pública com hierarquia editorial clara.</h2>
+          </div>
+          <div className="news-grid">
+            {news.map((item) => (
+              <article className="news-card" key={item.title}>
+                <div className="news-placeholder" aria-hidden="true" />
+                <p className="news-meta">
+                  {item.category} · {item.date}
+                </p>
+                <h3>{item.title}</h3>
+                <Link href="/noticias">Ler notícia →</Link>
+              </article>
+            ))}
+          </div>
         </section>
       </main>
-
-      <footer id="contato">
-        <p>Ceasaminas Digital — ambiente local de desenvolvimento.</p>
-      </footer>
+      <Footer />
     </>
   );
 }

@@ -2,8 +2,11 @@ import type { Metadata } from 'next';
 import './styles.css';
 
 export const metadata: Metadata = {
-  title: 'Ceasaminas | Centrais de Abastecimento de Minas Gerais',
-  description: 'Portal institucional, mercado, licitações e transparência da Ceasaminas.'
+  title: {
+    default: 'Ceasaminas | Centrais de Abastecimento de Minas Gerais',
+    template: '%s | Ceasaminas',
+  },
+  description: 'Portal institucional, mercado, licitações e transparência da Ceasaminas.',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
