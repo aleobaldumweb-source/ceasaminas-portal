@@ -2,10 +2,8 @@ packages:
   - apps/*
   - packages/*
 
-onlyBuiltDependencies:
-  - '@prisma/engines'
-  - prisma
-  - sharp
-
-ignoredBuiltDependencies:
-  - '@scarf/scarf'
+allowBuilds:
+  '@prisma/engines': true
+  prisma: true
+  sharp: true
+  '@scarf/scarf': false
