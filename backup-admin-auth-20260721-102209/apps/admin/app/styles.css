@@ -93,16 +93,8 @@ header,
 header {
   margin-bottom: 28px;
 }
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
 header p,
-.section-title p,
-.eyebrow {
+.section-title p {
   margin: 0;
   color: var(--green);
   font-size: 0.73rem;
@@ -135,10 +127,6 @@ h2 {
 .secondary {
   background: white;
   border: 1px solid var(--line);
-}
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 .metrics {
   display: grid;
@@ -252,10 +240,6 @@ td small {
   background: #fff2d7;
   color: #805514;
 }
-.review {
-  background: #e8efff;
-  color: #2b4f9c;
-}
 .archived {
   background: #ecefed;
   color: #536058;
@@ -328,16 +312,6 @@ td small {
   .section-title {
     align-items: stretch;
     flex-direction: column;
-  }
-  .header-actions {
-    align-items: stretch;
-    justify-content: flex-start;
-  }
-  .user-menu {
-    justify-content: space-between;
-  }
-  .user-menu-copy {
-    text-align: left;
   }
   h1 {
     font-size: 2.25rem;

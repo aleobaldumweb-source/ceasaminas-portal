@@ -1,6 +1,6 @@
 'use client';
 
-import { type FormEvent, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useAuth } from '../../components/auth-provider';
 
 export default function LoginPage() {
@@ -51,7 +51,7 @@ export default function LoginPage() {
               autoComplete="username"
               id="email"
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="admin@ceasaminas.com.br"
+              placeholder="nome@ceasaminas.com.br"
               required
               type="email"
               value={email}
@@ -72,12 +72,16 @@ export default function LoginPage() {
           </div>
 
           {error ? (
-            <div className="alert error" role="alert">
+            <div className="feedback feedback-error" role="alert">
               {error}
             </div>
           ) : null}
 
-          <button className="primary login-button" disabled={submitting} type="submit">
+          <button
+            className="button button-primary login-button"
+            disabled={submitting}
+            type="submit"
+          >
             {submitting ? 'Entrando...' : 'Entrar'}
           </button>
 

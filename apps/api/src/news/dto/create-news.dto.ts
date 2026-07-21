@@ -18,6 +18,10 @@ export class CreateNewsDto {
   slug?: string;
 
   @IsString()
+  @Length(3, 100)
+  category!: string;
+
+  @IsString()
   @Length(10, 500)
   summary!: string;
 

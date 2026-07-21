@@ -48,8 +48,7 @@ model NewsArticle {
   id          String            @id @default(cuid())
   title       String
   slug        String            @unique
-  category    String            @default("Institucional")
-  summary     String
+    category    String            @default("Institucional")`r`n  summary     String
   content     String
   status      PublicationStatus @default(DRAFT)
   publishedAt DateTime?
@@ -110,3 +109,4 @@ model AuditLog {
   @@index([resource, resourceId])
   @@map("audit_logs")
 }
+

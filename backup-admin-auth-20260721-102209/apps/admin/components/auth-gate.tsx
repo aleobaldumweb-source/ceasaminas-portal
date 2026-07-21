@@ -15,7 +15,9 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
     if (!user && !isLoginPage) {
       router.replace('/login');
-    } else if (user && isLoginPage) {
+    }
+
+    if (user && isLoginPage) {
       router.replace('/');
     }
   }, [isLoginPage, loading, router, user]);

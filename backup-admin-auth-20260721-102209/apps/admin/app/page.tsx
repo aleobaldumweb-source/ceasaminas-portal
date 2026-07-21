@@ -1,10 +1,8 @@
 'use client';
 
-import { type FormEvent, useEffect, useMemo, useState } from 'react';
-import { useAuth } from '../components/auth-provider';
-import { authenticatedRequest as request } from '../lib/auth-client';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 
-type Status = 'DRAFT' | 'REVIEW' | 'PUBLISHED' | 'ARCHIVED';
+type Status = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 type News = {
   id: string;
   title: string;
@@ -19,6 +17,7 @@ type News = {
 };
 type FormState = Omit<News, 'id' | 'createdAt' | 'updatedAt'>;
 
+const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3333/api/v1';
 const emptyForm: FormState = {
   title: '',
   slug: '',
@@ -28,10 +27,8 @@ const emptyForm: FormState = {
   status: 'DRAFT',
   publishedAt: null,
 };
-
 const labels: Record<Status, string> = {
   DRAFT: 'Rascunho',
-  REVIEW: 'Em revisão',
   PUBLISHED: 'Publicada',
   ARCHIVED: 'Arquivada',
 };
@@ -45,33 +42,45 @@ function slugify(value: string) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 }
-
-function formatDate(value: string | null) {
+function date(value: string | null) {
   return value
-    ? new Intl.DateTimeFormat('pt-BR', {
-        dateStyle: 'short',
-        timeStyle: 'short',
-      }).format(new Date(value))
+    ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(
+        new Date(value),
+      )
     : '—';
 }
-
-function normalize(raw: Record<string, unknown>): News {
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API}${path}`, {
+    ...init,
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
+  });
+  if (!response.ok) {
+    let message = `Erro ${response.status}`;
+    try {
+      const body = await response.json();
+      message = Array.isArray(body.message) ? body.message.join(' ') : (body.message ?? message);
+    } catch {}
+    throw new Error(message);
+  }
+  if (response.status === 204) return undefined as T;
+  return response.json();
+}
+function normalize(raw: any): News {
   return {
     id: String(raw.id),
-    title: String(raw.title ?? ''),
-    slug: String(raw.slug ?? ''),
-    summary: String(raw.summary ?? raw.excerpt ?? ''),
-    content: String(raw.content ?? ''),
-    category: String(raw.category ?? 'Institucional'),
+    title: raw.title ?? '',
+    slug: raw.slug ?? '',
+    summary: raw.summary ?? raw.excerpt ?? '',
+    content: raw.content ?? '',
+    category: raw.category ?? 'Institucional',
     status: String(raw.status ?? 'DRAFT').toUpperCase() as Status,
-    publishedAt: raw.publishedAt ? String(raw.publishedAt) : null,
-    createdAt: String(raw.createdAt ?? new Date(0).toISOString()),
-    updatedAt: String(raw.updatedAt ?? raw.createdAt ?? new Date(0).toISOString()),
+    publishedAt: raw.publishedAt ?? null,
+    createdAt: raw.createdAt ?? new Date(0).toISOString(),
+    updatedAt: raw.updatedAt ?? raw.createdAt ?? new Date(0).toISOString(),
   };
 }
 
 export default function AdminHome() {
-  const { user, logout } = useAuth();
   const [items, setItems] = useState<News[]>([]);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editing, setEditing] = useState<string | null>(null);
@@ -84,38 +93,30 @@ export default function AdminHome() {
   async function load() {
     setLoading(true);
     setError('');
-
     try {
-      const data = await request<News[] | { items?: News[]; data?: News[] }>('/news/admin', {
-        cache: 'no-store',
-      });
-
+      const data: any = await request('/news/admin', { cache: 'no-store' });
       const list = Array.isArray(data) ? data : (data.items ?? data.data ?? []);
-
-      setItems(list.map((item) => normalize(item as unknown as Record<string, unknown>)));
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Falha ao carregar notícias.');
+      setItems(list.map(normalize));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Falha ao carregar notícias.');
     } finally {
       setLoading(false);
     }
   }
-
   useEffect(() => {
     void load();
   }, []);
-
   const metrics = useMemo(
     () => ({
       total: items.length,
-      published: items.filter((item) => item.status === 'PUBLISHED').length,
-      drafts: items.filter((item) => item.status === 'DRAFT').length,
-      archived: items.filter((item) => item.status === 'ARCHIVED').length,
+      published: items.filter((i) => i.status === 'PUBLISHED').length,
+      drafts: items.filter((i) => i.status === 'DRAFT').length,
+      archived: items.filter((i) => i.status === 'ARCHIVED').length,
     }),
     [items],
   );
-
-  const filtered = items.filter((item) =>
-    `${item.title} ${item.slug} ${item.category}`.toLowerCase().includes(query.toLowerCase()),
+  const filtered = items.filter((i) =>
+    `${i.title} ${i.slug} ${i.category}`.toLowerCase().includes(query.toLowerCase()),
   );
 
   function edit(item: News) {
@@ -131,49 +132,35 @@ export default function AdminHome() {
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
   function reset() {
     setEditing(null);
     setForm(emptyForm);
     setError('');
   }
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function submit(e: FormEvent) {
+    e.preventDefault();
     setSaving(true);
     setError('');
     setMessage('');
-
     const payload = {
       ...form,
       slug: slugify(form.slug || form.title),
       publishedAt:
         form.status === 'PUBLISHED' ? (form.publishedAt ?? new Date().toISOString()) : null,
     };
-
     try {
-      if (editing) {
-        await request(`/news/${editing}`, {
-          method: 'PATCH',
-          body: JSON.stringify(payload),
-        });
-      } else {
-        await request('/news', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        });
-      }
-
+      if (editing)
+        await request(`/news/${editing}`, { method: 'PATCH', body: JSON.stringify(payload) });
+      else await request('/news', { method: 'POST', body: JSON.stringify(payload) });
       setMessage(editing ? 'Notícia atualizada.' : 'Notícia criada.');
       reset();
       await load();
-    } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : 'Falha ao salvar.');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Falha ao salvar.');
     } finally {
       setSaving(false);
     }
   }
-
   async function changeStatus(item: News, status: Status) {
     try {
       await request(`/news/${item.id}`, {
@@ -185,19 +172,17 @@ export default function AdminHome() {
         }),
       });
       await load();
-    } catch (statusError) {
-      setError(statusError instanceof Error ? statusError.message : 'Falha ao alterar status.');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Falha ao alterar status.');
     }
   }
-
   async function remove(item: News) {
     if (!confirm(`Excluir “${item.title}”?`)) return;
-
     try {
       await request(`/news/${item.id}`, { method: 'DELETE' });
       await load();
-    } catch (removeError) {
-      setError(removeError instanceof Error ? removeError.message : 'Falha ao excluir.');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Falha ao excluir.');
     }
   }
 
@@ -225,41 +210,24 @@ export default function AdminHome() {
         </nav>
         <footer>● Ambiente local</footer>
       </aside>
-
       <main>
         <header>
           <div>
             <p>AMBIENTE LOCAL</p>
             <h1>Painel administrativo</h1>
           </div>
-
-          <div className="header-actions">
-            <div className="user-menu">
-              <div className="user-menu-copy">
-                <strong>{user?.name}</strong>
-                <small>{user?.role}</small>
-              </div>
-              <button className="secondary" onClick={() => void logout()} type="button">
-                Sair
-              </button>
-            </div>
-
-            <button
-              className="primary"
-              onClick={() => {
-                reset();
-                document.getElementById('editor')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              type="button"
-            >
-              Nova notícia
-            </button>
-          </div>
+          <button
+            className="primary"
+            onClick={() => {
+              reset();
+              document.getElementById('editor')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Nova notícia
+          </button>
         </header>
-
-        {error ? <div className="alert error">{error}</div> : null}
-        {message ? <div className="alert success">{message}</div> : null}
-
+        {error && <div className="alert error">{error}</div>}
+        {message && <div className="alert success">{message}</div>}
         <section id="dashboard" className="metrics">
           <article>
             <span>Total de notícias</span>
@@ -285,13 +253,12 @@ export default function AdminHome() {
               <p>CONTEÚDO</p>
               <h2>{editing ? 'Editar notícia' : 'Nova notícia'}</h2>
             </div>
-            {editing ? (
-              <button className="secondary" onClick={reset} type="button">
+            {editing && (
+              <button className="secondary" onClick={reset}>
                 Cancelar edição
               </button>
-            ) : null}
+            )}
           </div>
-
           <form onSubmit={submit}>
             <div className="grid2">
               <label>
@@ -300,11 +267,11 @@ export default function AdminHome() {
                   required
                   minLength={5}
                   value={form.title}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      title: event.target.value,
-                      slug: editing ? current.slug : slugify(event.target.value),
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      title: e.target.value,
+                      slug: editing ? f.slug : slugify(e.target.value),
                     }))
                   }
                 />
@@ -314,49 +281,31 @@ export default function AdminHome() {
                 <input
                   required
                   value={form.slug}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      slug: event.target.value,
-                    }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
                 />
               </label>
             </div>
-
             <div className="grid2">
               <label>
                 Categoria
                 <input
                   required
                   value={form.category}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      category: event.target.value,
-                    }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
                 />
               </label>
               <label>
                 Status
                 <select
                   value={form.status}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      status: event.target.value as Status,
-                    }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as Status }))}
                 >
                   <option value="DRAFT">Rascunho</option>
-                  <option value="REVIEW">Em revisão</option>
                   <option value="PUBLISHED">Publicada</option>
                   <option value="ARCHIVED">Arquivada</option>
                 </select>
               </label>
             </div>
-
             <label>
               Resumo
               <textarea
@@ -364,15 +313,9 @@ export default function AdminHome() {
                 minLength={10}
                 rows={3}
                 value={form.summary}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    summary: event.target.value,
-                  }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, summary: e.target.value }))}
               />
             </label>
-
             <label>
               Conteúdo
               <textarea
@@ -380,15 +323,9 @@ export default function AdminHome() {
                 minLength={20}
                 rows={10}
                 value={form.content}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    content: event.target.value,
-                  }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
               />
             </label>
-
             <div className="form-actions">
               <button className="primary" disabled={saving}>
                 {saving ? 'Salvando...' : editing ? 'Salvar alterações' : 'Criar notícia'}
@@ -407,10 +344,9 @@ export default function AdminHome() {
               className="search"
               placeholder="Buscar notícia"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(e) => setQuery(e.target.value)}
             />
           </div>
-
           {loading ? (
             <div className="empty">Carregando...</div>
           ) : filtered.length === 0 ? (
@@ -441,8 +377,8 @@ export default function AdminHome() {
                           {labels[item.status]}
                         </span>
                       </td>
-                      <td>{formatDate(item.publishedAt)}</td>
-                      <td>{formatDate(item.updatedAt)}</td>
+                      <td>{date(item.publishedAt)}</td>
+                      <td>{date(item.updatedAt)}</td>
                       <td>
                         <div className="actions">
                           <button onClick={() => edit(item)}>Editar</button>

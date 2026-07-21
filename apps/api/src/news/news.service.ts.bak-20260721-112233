@@ -33,7 +33,6 @@ export class NewsService {
         data: {
           title: input.title.trim(),
           slug: this.slugify(input.slug || input.title),
-          category: input.category.trim(),
           summary: input.summary.trim(),
           content: input.content.trim(),
           status,

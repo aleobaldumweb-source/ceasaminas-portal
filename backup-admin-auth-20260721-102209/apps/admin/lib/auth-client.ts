@@ -77,36 +77,3 @@ export async function logout() {
 
   setAccessToken(null);
 }
-
-export async function authenticatedRequest<T>(
-  path: string,
-  init?: RequestInit,
-  retry = true,
-): Promise<T> {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}${path}`, {
-    ...init,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...init?.headers,
-    },
-  });
-
-  if (response.status === 401 && retry) {
-    await refreshSession();
-    return authenticatedRequest<T>(path, init, false);
-  }
-
-  if (!response.ok) {
-    throw new Error(await parseError(response));
-  }
-
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return (await response.json()) as T;
-}
