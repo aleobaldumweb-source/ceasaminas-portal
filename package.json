@@ -21,7 +21,8 @@
     "infra:up": "docker compose up -d postgres redis mailpit minio",
     "infra:down": "docker compose down",
     "infra:logs": "docker compose logs -f --tail=100",
-    "infra:status": "docker compose ps"
+    "infra:status": "docker compose ps",
+    "test:news-crud": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/test-news-crud.ps1"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
