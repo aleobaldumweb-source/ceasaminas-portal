@@ -57,6 +57,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@ceasaminas/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       '@nestjs/common':
         specifier: ^11.1.0
         version: 11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -75,6 +78,9 @@ importers:
       class-validator:
         specifier: ^0.14.2
         version: 0.14.4
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.4.2
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -150,14 +156,14 @@ importers:
         specifier: ^17.2.3
         version: 17.4.2
       pg:
-        specifier: ^8.16.3
+        specifier: ^8.22.0
         version: 8.22.0
     devDependencies:
       '@types/node':
         specifier: ^24.10.0
         version: 24.13.3
       '@types/pg':
-        specifier: ^8.15.6
+        specifier: ^8.20.0
         version: 8.20.0
       prisma:
         specifier: ^7.8.0
