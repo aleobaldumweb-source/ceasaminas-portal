@@ -51,8 +51,6 @@ model NewsArticle {
   category    String            @default("Institucional")
   summary     String
   content     String
-  imageUrl    String?
-  sourceUrl   String?
   status      PublicationStatus @default(DRAFT)
   publishedAt DateTime?
   createdAt   DateTime          @default(now())

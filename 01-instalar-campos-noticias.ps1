@@ -1,3 +1,109 @@
+$ErrorActionPreference = "Stop"
+
+$schemaPath = ".\packages\database\prisma\schema.prisma"
+$dtoPath = ".\apps\api\src\news\dto\create-news.dto.ts"
+$servicePath = ".\apps\api\src\news\news.service.ts"
+
+foreach ($path in @($schemaPath, $dtoPath, $servicePath)) {
+  if (-not (Test-Path $path)) {
+    throw "Arquivo não encontrado: $path. Execute este script na raiz do projeto."
+  }
+  Copy-Item $path "$path.bak-$(Get-Date -Format 'yyyyMMdd-HHmmss')" -Force
+}
+
+# Atualiza apenas o bloco NewsArticle, preservando o restante do schema.
+$schema = Get-Content $schemaPath -Raw
+
+$newsModel = @'
+model NewsArticle {
+  id          String            @id @default(cuid())
+  title       String
+  slug        String            @unique
+  category    String            @default("Institucional")
+  summary     String
+  content     String
+  imageUrl    String?
+  sourceUrl   String?
+  status      PublicationStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([category])
+  @@map("news_articles")
+}
+'@
+
+$pattern = '(?s)model\s+NewsArticle\s*\{.*?\r?\n\}'
+if ($schema -notmatch $pattern) {
+  throw "O bloco model NewsArticle não foi localizado."
+}
+$schema = [regex]::Replace($schema, $pattern, $newsModel, 1)
+Set-Content $schemaPath $schema -Encoding utf8
+
+$dto = @'
+import {
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Length,
+  MaxLength,
+} from 'class-validator';
+
+export enum NewsPublicationStatus {
+  DRAFT = 'DRAFT',
+  REVIEW = 'REVIEW',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export class CreateNewsDto {
+  @IsString()
+  @Length(3, 180)
+  title!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  slug?: string;
+
+  @IsString()
+  @Length(3, 100)
+  category!: string;
+
+  @IsString()
+  @Length(10, 500)
+  summary!: string;
+
+  @IsString()
+  @Length(10, 100000)
+  content!: string;
+
+  @IsOptional()
+  @IsUrl({ require_protocol: true })
+  @MaxLength(2048)
+  imageUrl?: string;
+
+  @IsOptional()
+  @IsUrl({ require_protocol: true })
+  @MaxLength(2048)
+  sourceUrl?: string;
+
+  @IsOptional()
+  @IsEnum(NewsPublicationStatus)
+  status?: NewsPublicationStatus;
+
+  @IsOptional()
+  @IsDateString()
+  publishedAt?: string;
+}
+'@
+Set-Content $dtoPath $dto -Encoding utf8
+
+$service = @'
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { prisma } from '@ceasaminas/database';
 import { CreateNewsDto } from './dto/create-news.dto.js';
@@ -106,3 +212,9 @@ export class NewsService {
     }
   }
 }
+'@
+Set-Content $servicePath $service -Encoding utf8
+
+Write-Host ""
+Write-Host "Arquivos atualizados com sucesso." -ForegroundColor Green
+Write-Host "Agora execute os comandos apresentados no arquivo LEIA-ME.txt." -ForegroundColor Yellow

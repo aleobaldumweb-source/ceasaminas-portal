@@ -1,12 +1,4 @@
-import {
-  IsDateString,
-  IsEnum,
-  IsOptional,
-  IsString,
-  IsUrl,
-  Length,
-  MaxLength,
-} from 'class-validator';
+import { IsDateString, IsEnum, IsOptional, IsString, Length, MaxLength } from 'class-validator';
 
 export enum NewsPublicationStatus {
   DRAFT = 'DRAFT',
@@ -36,16 +28,6 @@ export class CreateNewsDto {
   @IsString()
   @Length(10, 100000)
   content!: string;
-
-  @IsOptional()
-  @IsUrl({ require_protocol: true })
-  @MaxLength(2048)
-  imageUrl?: string;
-
-  @IsOptional()
-  @IsUrl({ require_protocol: true })
-  @MaxLength(2048)
-  sourceUrl?: string;
 
   @IsOptional()
   @IsEnum(NewsPublicationStatus)
