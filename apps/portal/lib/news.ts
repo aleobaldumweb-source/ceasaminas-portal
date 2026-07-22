@@ -4,14 +4,21 @@ export interface NewsArticle {
   id: string;
   title: string;
   slug: string;
+
+  category: string;
+
   summary: string;
   content: string;
+
+  imageUrl: string | null;
+  sourceUrl: string | null;
+
   status: PublicationStatus;
+
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
-
 export class ApiRequestError extends Error {
   constructor(
     message: string,

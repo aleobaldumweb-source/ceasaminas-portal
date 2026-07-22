@@ -13,7 +13,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { randomUUID } from 'node:crypto';
 import { mkdir, rename, unlink } from 'node:fs/promises';
 import { extname, resolve } from 'node:path';
@@ -57,20 +56,6 @@ export class NewsController {
   }
 
   @Post(':id/image')
-  @ApiBearerAuth()
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: ['file'],
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
   @UseInterceptors(
     FileInterceptor('file', {
       dest: TEMP_DIRECTORY,

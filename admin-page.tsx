@@ -1,6 +1,6 @@
 'use client';
 
-import { type ChangeEvent, type FormEvent, useEffect, useMemo, useState } from 'react';
+import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../components/auth-provider';
 import { authenticatedRequest as request } from '../lib/auth-client';
 
@@ -12,14 +12,12 @@ type News = {
   summary: string;
   content: string;
   category: string;
-  imageUrl: string | null;
-  sourceUrl: string | null;
   status: Status;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
-type FormState = Omit<News, 'id' | 'createdAt' | 'updatedAt' | 'imageUrl' | 'sourceUrl'>;
+type FormState = Omit<News, 'id' | 'createdAt' | 'updatedAt'>;
 
 const emptyForm: FormState = {
   title: '',
@@ -65,8 +63,6 @@ function normalize(raw: Record<string, unknown>): News {
     summary: String(raw.summary ?? raw.excerpt ?? ''),
     content: String(raw.content ?? ''),
     category: String(raw.category ?? 'Institucional'),
-    imageUrl: raw.imageUrl ? String(raw.imageUrl) : null,
-    sourceUrl: raw.sourceUrl ? String(raw.sourceUrl) : null,
     status: String(raw.status ?? 'DRAFT').toUpperCase() as Status,
     publishedAt: raw.publishedAt ? String(raw.publishedAt) : null,
     createdAt: String(raw.createdAt ?? new Date(0).toISOString()),
@@ -79,9 +75,6 @@ export default function AdminHome() {
   const [items, setItems] = useState<News[]>([]);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editing, setEditing] = useState<string | null>(null);
-  const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -127,9 +120,6 @@ export default function AdminHome() {
 
   function edit(item: News) {
     setEditing(item.id);
-    setCurrentImageUrl(item.imageUrl);
-    setSelectedImage(null);
-    setLocalPreview(null);
     setForm({
       title: item.title,
       slug: item.slug,
@@ -143,48 +133,9 @@ export default function AdminHome() {
   }
 
   function reset() {
-    if (localPreview) URL.revokeObjectURL(localPreview);
     setEditing(null);
-    setCurrentImageUrl(null);
-    setSelectedImage(null);
-    setLocalPreview(null);
     setForm(emptyForm);
     setError('');
-  }
-
-  function selectImage(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0] ?? null;
-    if (!file) return;
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      setError('Formato inválido. Selecione JPG, PNG ou WebP.');
-      event.target.value = '';
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setError('A imagem deve ter no máximo 5 MB.');
-      event.target.value = '';
-      return;
-    }
-    if (localPreview) URL.revokeObjectURL(localPreview);
-    setSelectedImage(file);
-    setLocalPreview(URL.createObjectURL(file));
-    setError('');
-  }
-
-  async function uploadImage(newsId: string, file: File) {
-    const body = new FormData();
-    body.append('file', file);
-    return request<News>(`/news/${newsId}/image`, { method: 'POST', body });
-  }
-
-  async function removeImage() {
-    if (!editing) return;
-    await request(`/news/${editing}/image`, { method: 'DELETE' });
-    setCurrentImageUrl(null);
-    setSelectedImage(null);
-    setLocalPreview(null);
-    setMessage('Imagem removida.');
-    await load();
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -201,17 +152,18 @@ export default function AdminHome() {
     };
 
     try {
-      const saved = editing
-        ? await request<News>(`/news/${editing}`, {
-            method: 'PATCH',
-            body: JSON.stringify(payload),
-          })
-        : await request<News>('/news', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-          });
+      if (editing) {
+        await request(`/news/${editing}`, {
+          method: 'PATCH',
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await request('/news', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+      }
 
-      if (selectedImage) await uploadImage(saved.id, selectedImage);
       setMessage(editing ? 'Notícia atualizada.' : 'Notícia criada.');
       reset();
       await load();
@@ -436,37 +388,6 @@ export default function AdminHome() {
                 }
               />
             </label>
-
-            <fieldset style={{ border: '1px solid #d8ddd8', borderRadius: 12, padding: 16 }}>
-              <legend style={{ padding: '0 8px', fontWeight: 700 }}>Imagem da notícia</legend>
-              {(localPreview ?? currentImageUrl) ? (
-                <img
-                  src={localPreview ?? currentImageUrl ?? ''}
-                  alt="Pré-visualização"
-                  style={{
-                    width: '100%',
-                    maxWidth: 420,
-                    aspectRatio: '16 / 9',
-                    objectFit: 'cover',
-                    borderRadius: 10,
-                    display: 'block',
-                    marginBottom: 12,
-                  }}
-                />
-              ) : null}
-              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={selectImage} />
-              <small style={{ display: 'block', marginTop: 8 }}>JPG, PNG ou WebP, até 5 MB.</small>
-              {editing && currentImageUrl ? (
-                <button
-                  className="danger"
-                  type="button"
-                  onClick={() => void removeImage()}
-                  style={{ marginTop: 12 }}
-                >
-                  Remover imagem
-                </button>
-              ) : null}
-            </fieldset>
 
             <div className="form-actions">
               <button className="primary" disabled={saving}>

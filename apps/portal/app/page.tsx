@@ -1,6 +1,8 @@
 import Link from 'next/link';
+
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
+import { NewsImage } from '@/components/news-image';
 import { formatNewsDate, getPublishedNews, type NewsArticle } from '@/lib/news';
 
 export const dynamic = 'force-dynamic';
@@ -36,9 +38,11 @@ const services = [
 async function loadHomepageNews(): Promise<NewsArticle[]> {
   try {
     const articles = await getPublishedNews();
+
     return articles.slice(0, 3);
   } catch (error) {
     console.error('Não foi possível carregar as notícias da API:', error);
+
     return [];
   }
 }
@@ -76,6 +80,7 @@ export default async function HomePage() {
 
             <aside className="market-snapshot" aria-label="Resumo de mercado">
               <p className="eyebrow">Painel de mercado</p>
+
               <h2>Dados que apoiam decisões.</h2>
 
               <div className="snapshot-row">
@@ -119,7 +124,9 @@ export default async function HomePage() {
             {services.map((service) => (
               <article className="service-card" key={service.href}>
                 <span>{service.number}</span>
+
                 <h3>{service.title}</h3>
+
                 <p>{service.description}</p>
 
                 <Link href={service.href}>
@@ -156,6 +163,7 @@ export default async function HomePage() {
           <div className="section-heading news-heading">
             <div>
               <p className="eyebrow">Notícias e comunicados</p>
+
               <h2>Informação pública com hierarquia editorial clara.</h2>
             </div>
 
@@ -166,11 +174,17 @@ export default async function HomePage() {
 
           {news.length > 0 ? (
             <div className="news-grid">
-              {news.map((item) => (
+              {news.map((item, index) => (
                 <article className="news-card" key={item.id}>
-                  <div className="news-placeholder" aria-hidden="true" />
+                  <Link href={`/noticias/${item.slug}`} aria-label={`Ler notícia: ${item.title}`}>
+                    <NewsImage src={item.imageUrl} alt={item.title} priority={index === 0} />
+                  </Link>
 
-                  <p className="news-meta">Institucional · {formatNewsDate(item.publishedAt)}</p>
+                  <p className="news-meta">
+                    {item.category || 'Institucional'}
+                    {' · '}
+                    {formatNewsDate(item.publishedAt ?? item.createdAt)}
+                  </p>
 
                   <h3>
                     <Link href={`/noticias/${item.slug}`}>{item.title}</Link>
@@ -178,13 +192,16 @@ export default async function HomePage() {
 
                   <p className="news-summary">{item.summary}</p>
 
-                  <Link href={`/noticias/${item.slug}`}>Ler notícia →</Link>
+                  <Link href={`/noticias/${item.slug}`}>
+                    Ler notícia <span aria-hidden="true">→</span>
+                  </Link>
                 </article>
               ))}
             </div>
           ) : (
             <div className="empty-state" role="status">
               <h3>Notícias temporariamente indisponíveis</h3>
+
               <p>
                 Não foi possível consultar as notícias neste momento. Tente novamente em instantes.
               </p>

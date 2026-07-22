@@ -1,0 +1,7 @@
+1. Extraia o pacote.
+2. Na raiz do ceasaminas-portal, execute:
+
+powershell -ExecutionPolicy Bypass -File "CAMINHO\ceasaminas-upload-imagens\INSTALAR-UPLOAD.ps1"
+
+3. Reinicie API, Admin e Portal.
+4. Edite uma notícia, selecione JPG/PNG/WebP de até 5 MB e salve.
