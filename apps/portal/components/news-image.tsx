@@ -1,5 +1,3 @@
-import Image from 'next/image';
-
 interface NewsImageProps {
   src: string | null;
   alt: string;
@@ -7,8 +5,26 @@ interface NewsImageProps {
   priority?: boolean;
 }
 
-export function NewsImage({ src, alt, className = '', priority = false }: NewsImageProps) {
-  if (!src) {
+function normalizeNewsImage(src: string | null) {
+  if (!src?.trim()) {
+    return null;
+  }
+
+  const normalizedSrc = src.trim();
+
+  if (normalizedSrc.startsWith('/uploads/')) {
+    const apiOrigin = process.env.NEXT_PUBLIC_API_ORIGIN ?? 'http://localhost:3333';
+
+    return `${apiOrigin.replace(/\/+$/, '')}${normalizedSrc}`;
+  }
+
+  return normalizedSrc;
+}
+
+export function NewsImage({ src, alt, className = '' }: NewsImageProps) {
+  const imageUrl = normalizeNewsImage(src);
+
+  if (!imageUrl) {
     return (
       <div
         className={`news-image-placeholder ${className}`.trim()}
@@ -22,13 +38,18 @@ export function NewsImage({ src, alt, className = '', priority = false }: NewsIm
 
   return (
     <div className={`news-image-wrapper ${className}`.trim()}>
-      <Image
-        src={src}
+      <img
+        src={imageUrl}
         alt={alt}
-        fill
-        priority={priority}
-        sizes="(max-width: 760px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        className="news-image"
+        loading="lazy"
+        decoding="async"
+        style={{
+          display: 'block',
+          width: '100%',
+          height: '100%',
+          minHeight: '220px',
+          objectFit: 'cover',
+        }}
       />
     </div>
   );

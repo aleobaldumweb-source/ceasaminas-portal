@@ -82,7 +82,6 @@ export default function AdminHome() {
   const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
-  const [draggingImage, setDraggingImage] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -153,45 +152,23 @@ export default function AdminHome() {
     setError('');
   }
 
-  function applyImageFile(file: File | null) {
+  function selectImage(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
     if (!file) return;
-
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
       setError('Formato inválido. Selecione JPG, PNG ou WebP.');
+      event.target.value = '';
       return;
     }
-
     if (file.size > 5 * 1024 * 1024) {
       setError('A imagem deve ter no máximo 5 MB.');
+      event.target.value = '';
       return;
     }
-
     if (localPreview) URL.revokeObjectURL(localPreview);
     setSelectedImage(file);
     setLocalPreview(URL.createObjectURL(file));
     setError('');
-  }
-
-  function selectImage(event: ChangeEvent<HTMLInputElement>) {
-    applyImageFile(event.target.files?.[0] ?? null);
-    event.target.value = '';
-  }
-
-  function handleImageDrop(event: DragEvent<HTMLDivElement>) {
-    event.preventDefault();
-    setDraggingImage(false);
-    applyImageFile(event.dataTransfer.files?.[0] ?? null);
-  }
-
-  function handleImagePaste(event: ClipboardEvent<HTMLDivElement>) {
-    const imageItem = Array.from(event.clipboardData.items).find((item) =>
-      item.type.startsWith('image/'),
-    );
-
-    if (!imageItem) return;
-
-    event.preventDefault();
-    applyImageFile(imageItem.getAsFile());
   }
 
   async function uploadImage(newsId: string, file: File) {
@@ -462,94 +439,33 @@ export default function AdminHome() {
 
             <fieldset style={{ border: '1px solid #d8ddd8', borderRadius: 12, padding: 16 }}>
               <legend style={{ padding: '0 8px', fontWeight: 700 }}>Imagem da notícia</legend>
-
-              <div
-                onDragEnter={(event) => {
-                  event.preventDefault();
-                  setDraggingImage(true);
-                }}
-                onDragOver={(event) => {
-                  event.preventDefault();
-                  setDraggingImage(true);
-                }}
-                onDragLeave={() => setDraggingImage(false)}
-                onDrop={handleImageDrop}
-                onPaste={handleImagePaste}
-                tabIndex={0}
-                aria-label="Área para selecionar, arrastar ou colar a imagem da notícia"
-                style={{
-                  border: draggingImage ? '2px dashed #146c43' : '2px dashed #bdc8bf',
-                  borderRadius: 12,
-                  padding: 16,
-                  background: draggingImage ? '#eef8f1' : '#fafcfb',
-                  transition: 'border-color 150ms ease, background 150ms ease',
-                  outline: 'none',
-                }}
-              >
-                {(localPreview ?? currentImageUrl) ? (
-                  <img
-                    src={localPreview ?? currentImageUrl ?? ''}
-                    alt="Pré-visualização"
-                    style={{
-                      width: '100%',
-                      maxWidth: 420,
-                      aspectRatio: '16 / 9',
-                      objectFit: 'cover',
-                      borderRadius: 10,
-                      display: 'block',
-                      marginBottom: 12,
-                    }}
-                  />
-                ) : (
-                  <div style={{ padding: '24px 12px', textAlign: 'center', color: '#526057' }}>
-                    <strong>Arraste uma imagem para esta área</strong>
-                    <small style={{ display: 'block', marginTop: 6 }}>
-                      Você também pode procurar um arquivo ou colar uma imagem com Ctrl + V.
-                    </small>
-                  </div>
-                )}
-
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={selectImage}
+              {(localPreview ?? currentImageUrl) ? (
+                <img
+                  src={localPreview ?? currentImageUrl ?? ''}
+                  alt="Pré-visualização"
+                  style={{
+                    width: '100%',
+                    maxWidth: 420,
+                    aspectRatio: '16 / 9',
+                    objectFit: 'cover',
+                    borderRadius: 10,
+                    display: 'block',
+                    marginBottom: 12,
+                  }}
                 />
-
-                <small style={{ display: 'block', marginTop: 8 }}>
-                  JPG, PNG ou WebP, até 5 MB.
-                </small>
-
-                {selectedImage ? (
-                  <p style={{ margin: '10px 0 0', fontWeight: 700 }}>
-                    Nova imagem: {selectedImage.name}
-                  </p>
-                ) : null}
-
-                {selectedImage ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (localPreview) URL.revokeObjectURL(localPreview);
-                      setSelectedImage(null);
-                      setLocalPreview(null);
-                    }}
-                    style={{ marginTop: 12 }}
-                  >
-                    Cancelar seleção
-                  </button>
-                ) : null}
-
-                {editing && currentImageUrl ? (
-                  <button
-                    className="danger"
-                    type="button"
-                    onClick={() => void removeImage()}
-                    style={{ marginTop: 12, marginLeft: selectedImage ? 8 : 0 }}
-                  >
-                    Remover imagem
-                  </button>
-                ) : null}
-              </div>
+              ) : null}
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={selectImage} />
+              <small style={{ display: 'block', marginTop: 8 }}>JPG, PNG ou WebP, até 5 MB.</small>
+              {editing && currentImageUrl ? (
+                <button
+                  className="danger"
+                  type="button"
+                  onClick={() => void removeImage()}
+                  style={{ marginTop: 12 }}
+                >
+                  Remover imagem
+                </button>
+              ) : null}
             </fieldset>
 
             <div className="form-actions">
