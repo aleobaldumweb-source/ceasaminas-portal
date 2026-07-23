@@ -2,16 +2,16 @@
 
 import { useState } from 'react';
 
-import styles from './news-image.module.css';
+import styles from './news-media.module.css';
 
-interface NewsImageProps {
+type NewsMediaProps = {
   src: string | null;
   alt: string;
-  className?: string;
   priority?: boolean;
-}
+  variant?: 'featured' | 'card';
+};
 
-function normalizeNewsImage(src: string | null) {
+function normalizeImageUrl(src: string | null) {
   if (!src?.trim()) {
     return null;
   }
@@ -27,30 +27,34 @@ function normalizeNewsImage(src: string | null) {
   return value;
 }
 
-export function NewsImage({ src, alt, className = '', priority = false }: NewsImageProps) {
-  const imageUrl = normalizeNewsImage(src);
+export function NewsMedia({ src, alt, priority = false, variant = 'card' }: NewsMediaProps) {
+  const imageUrl = normalizeImageUrl(src);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+
+  const rootClass = [
+    styles.media,
+    variant === 'featured' ? styles.featured : styles.card,
+    loaded ? styles.loaded : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   if (!imageUrl || failed) {
     return (
       <div
-        className={[styles.placeholder, className].filter(Boolean).join(' ')}
+        className={`${rootClass} ${styles.placeholder}`}
         role="img"
         aria-label={`Imagem não disponível para: ${alt}`}
       >
-        <span className={styles.placeholderBrand}>Ceasaminas</span>
+        <span>Ceasaminas</span>
         <small>Imagem não disponível</small>
       </div>
     );
   }
 
   return (
-    <div
-      className={[styles.wrapper, loaded ? styles.loaded : styles.loading, className]
-        .filter(Boolean)
-        .join(' ')}
-    >
+    <div className={rootClass}>
       <span className={styles.skeleton} aria-hidden="true" />
 
       <img
@@ -59,7 +63,6 @@ export function NewsImage({ src, alt, className = '', priority = false }: NewsIm
         loading={priority ? 'eager' : 'lazy'}
         fetchPriority={priority ? 'high' : 'auto'}
         decoding="async"
-        className={styles.image}
         onLoad={() => setLoaded(true)}
         onError={() => setFailed(true)}
       />

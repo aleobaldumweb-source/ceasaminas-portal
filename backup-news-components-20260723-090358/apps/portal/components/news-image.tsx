@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 
-import styles from './news-image.module.css';
-
 interface NewsImageProps {
   src: string | null;
   alt: string;
@@ -35,11 +33,11 @@ export function NewsImage({ src, alt, className = '', priority = false }: NewsIm
   if (!imageUrl || failed) {
     return (
       <div
-        className={[styles.placeholder, className].filter(Boolean).join(' ')}
+        className={`news-image-placeholder ${className}`.trim()}
         role="img"
         aria-label={`Imagem não disponível para: ${alt}`}
       >
-        <span className={styles.placeholderBrand}>Ceasaminas</span>
+        <span className="news-placeholder-brand">Ceasaminas</span>
         <small>Imagem não disponível</small>
       </div>
     );
@@ -47,11 +45,11 @@ export function NewsImage({ src, alt, className = '', priority = false }: NewsIm
 
   return (
     <div
-      className={[styles.wrapper, loaded ? styles.loaded : styles.loading, className]
+      className={['news-image-wrapper', loaded ? 'is-loaded' : 'is-loading', className]
         .filter(Boolean)
         .join(' ')}
     >
-      <span className={styles.skeleton} aria-hidden="true" />
+      <span className="news-image-skeleton" aria-hidden="true" />
 
       <img
         src={imageUrl}
@@ -59,7 +57,7 @@ export function NewsImage({ src, alt, className = '', priority = false }: NewsIm
         loading={priority ? 'eager' : 'lazy'}
         fetchPriority={priority ? 'high' : 'auto'}
         decoding="async"
-        className={styles.image}
+        className="news-image"
         onLoad={() => setLoaded(true)}
         onError={() => setFailed(true)}
       />
