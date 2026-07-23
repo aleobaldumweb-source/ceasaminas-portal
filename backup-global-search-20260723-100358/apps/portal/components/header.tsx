@@ -16,19 +16,16 @@ export function Header() {
       <a className="skip-link" href="#conteudo">
         Ir para o conteúdo
       </a>
-
       <header className="site-header">
         <div className="utility-bar">
           <div className="container utility-inner">
             <span>Centrais de Abastecimento de Minas Gerais S.A.</span>
-
             <div>
               <Link href="/transparencia">Acesso à informação</Link>
               <Link href="/contato">Ouvidoria</Link>
             </div>
           </div>
         </div>
-
         <div className="container header-inner">
           <Link className="brand" href="/" aria-label="Página inicial da Ceasaminas">
             <Image
@@ -39,7 +36,6 @@ export function Header() {
               priority
             />
           </Link>
-
           <nav aria-label="Navegação principal">
             <ul>
               {navigation.map(([label, href]) => (
@@ -49,8 +45,7 @@ export function Header() {
               ))}
             </ul>
           </nav>
-
-          <Link className="header-search" href="/pesquisa" aria-label="Pesquisar no portal">
+          <Link className="header-search" href="/noticias" aria-label="Pesquisar no portal">
             Pesquisar
           </Link>
         </div>
