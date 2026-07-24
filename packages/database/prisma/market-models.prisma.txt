@@ -1,0 +1,54 @@
+// Substitua os modelos MarketBulletin e MarketPrice do schema.prisma por estes.
+
+model MarketBulletin {
+  id          String        @id @default(cuid())
+  fileName    String
+  checksum    String
+  sheetName   String
+  market      String
+  referenceAt DateTime
+  rowCount    Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  prices      MarketPrice[]
+
+  @@unique([market, referenceAt])
+  @@index([referenceAt])
+  @@index([checksum])
+  @@map("market_bulletins")
+}
+
+model MarketPrice {
+  id                String         @id @default(cuid())
+  bulletinId        String
+  unitId            String?
+  market            String
+  marketCode        String?
+  category          String
+  subgroup          String?
+  group              String?
+  productCode       String?
+  productName       String
+  classification    String?
+  classLevel        String?
+  genericProduct    String?
+  unit              String
+  unitCode          String?
+  origin            String?
+  minPrice          Decimal        @db.Decimal(12, 2)
+  avgPrice          Decimal        @db.Decimal(12, 2)
+  maxPrice          Decimal        @db.Decimal(12, 2)
+  categoryId        String?
+  normalizedProduct String
+  referenceAt       DateTime
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  bulletin MarketBulletin @relation(fields: [bulletinId], references: [id], onDelete: Cascade)
+
+  @@index([bulletinId])
+  @@index([productName, referenceAt])
+  @@index([normalizedProduct, referenceAt])
+  @@index([category, referenceAt])
+  @@map("market_prices")
+}

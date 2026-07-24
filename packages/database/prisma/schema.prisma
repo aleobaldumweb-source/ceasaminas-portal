@@ -81,7 +81,7 @@ model MarketBulletin {
 }
 
 model MarketPrice {
-  id             String @id @default(cuid())
+  id             String  @id @default(cuid())
   bulletinId     String
   productCode    String?
   productName    String

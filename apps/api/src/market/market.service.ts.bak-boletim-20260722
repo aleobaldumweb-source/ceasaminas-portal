@@ -1,0 +1,360 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { prisma } from '@ceasaminas/database';
+import {
+  OFFICIAL_MARKET_BULLETIN_2026_07_22,
+  type OfficialMarketBulletinItem,
+} from './data/market-bulletin-2026-07-22.js';
+
+type DashboardOptions = {
+  product?: string;
+  days: number;
+};
+
+type MarketPriceView = {
+  productName: string;
+  category: string;
+  unit: string;
+  minPrice: number;
+  avgPrice: number;
+  maxPrice: number;
+  variation: number;
+  referenceAt: string;
+};
+
+const BULLETIN_DATE = new Date('2026-07-22T00:00:00.000Z');
+const BULLETIN_END = new Date('2026-07-23T00:00:00.000Z');
+const BULLETIN_BY_PRODUCT = new Map(
+  OFFICIAL_MARKET_BULLETIN_2026_07_22.map((item) => [
+    item.productName.toLocaleLowerCase('pt-BR'),
+    item,
+  ]),
+);
+
+const DEFAULT_ITEM = OFFICIAL_MARKET_BULLETIN_2026_07_22[0];
+
+@Injectable()
+export class MarketService {
+  private readonly logger = new Logger(MarketService.name);
+  private importPromise: Promise<void> | null = null;
+
+  /**
+   * Importação idempotente do boletim oficial de 22/07/2026.
+   * O primeiro acesso ao módulo de mercado persiste os 223 registros no PostgreSQL.
+   */
+  private async ensureOfficialBulletinImported(): Promise<void> {
+    if (!this.importPromise) {
+      this.importPromise = this.importOfficialBulletin().catch((error) => {
+        this.importPromise = null;
+        throw error;
+      });
+    }
+
+    await this.importPromise;
+  }
+
+  private async importOfficialBulletin(): Promise<void> {
+    const existingCount = await prisma.marketPrice.count({
+      where: {
+        referenceAt: {
+          gte: BULLETIN_DATE,
+          lt: BULLETIN_END,
+        },
+      },
+    });
+
+    if (existingCount >= OFFICIAL_MARKET_BULLETIN_2026_07_22.length) {
+      return;
+    }
+
+    await prisma.$transaction(async (transaction) => {
+      await transaction.marketPrice.deleteMany({
+        where: {
+          referenceAt: {
+            gte: BULLETIN_DATE,
+            lt: BULLETIN_END,
+          },
+        },
+      });
+
+      await transaction.marketPrice.createMany({
+        data: OFFICIAL_MARKET_BULLETIN_2026_07_22.map((item) => ({
+          productName: item.productName,
+          unit: item.unit,
+          minPrice: item.minPrice,
+          avgPrice: item.avgPrice,
+          maxPrice: item.maxPrice,
+          referenceAt: new Date(item.referenceAt),
+        })),
+      });
+    });
+
+    this.logger.log(
+      `Boletim oficial de 22/07/2026 importado: ${OFFICIAL_MARKET_BULLETIN_2026_07_22.length} cotações.`,
+    );
+  }
+
+  private categoryFor(productName: string): string {
+    return (
+      BULLETIN_BY_PRODUCT.get(productName.toLocaleLowerCase('pt-BR'))
+        ?.category ?? 'Não informada'
+    );
+  }
+
+  private async variationFor(
+    productName: string,
+    currentAverage: number,
+    currentReferenceAt: Date,
+  ): Promise<number> {
+    const previous = await prisma.marketPrice.findFirst({
+      where: {
+        productName: {
+          equals: productName,
+          mode: 'insensitive',
+        },
+        referenceAt: {
+          lt: currentReferenceAt,
+        },
+      },
+      orderBy: {
+        referenceAt: 'desc',
+      },
+    });
+
+    if (!previous) {
+      return 0;
+    }
+
+    const previousAverage = Number(previous.avgPrice);
+    if (!Number.isFinite(previousAverage) || previousAverage === 0) {
+      return 0;
+    }
+
+    return Number(
+      (((currentAverage - previousAverage) / previousAverage) * 100).toFixed(2),
+    );
+  }
+
+  async getLatestPrices(product?: string) {
+    try {
+      await this.ensureOfficialBulletinImported();
+    } catch (error) {
+      this.logger.error('Falha ao importar o boletim oficial.', error);
+    }
+
+    const latestReference = await prisma.marketPrice.findFirst({
+      orderBy: {
+        referenceAt: 'desc',
+      },
+      select: {
+        referenceAt: true,
+      },
+    });
+
+    if (!latestReference) {
+      return this.bulletinFallback(product);
+    }
+
+    const rows = await prisma.marketPrice.findMany({
+      where: {
+        referenceAt: latestReference.referenceAt,
+        ...(product
+          ? {
+              productName: {
+                contains: product,
+                mode: 'insensitive' as const,
+              },
+            }
+          : {}),
+      },
+      orderBy: {
+        productName: 'asc',
+      },
+      take: 500,
+    });
+
+    const items: MarketPriceView[] = await Promise.all(
+      rows.map(async (row) => {
+        const average = Number(row.avgPrice);
+        return {
+          productName: row.productName,
+          category: this.categoryFor(row.productName),
+          unit: row.unit,
+          minPrice: Number(row.minPrice),
+          avgPrice: average,
+          maxPrice: Number(row.maxPrice),
+          variation: await this.variationFor(
+            row.productName,
+            average,
+            row.referenceAt,
+          ),
+          referenceAt: row.referenceAt.toISOString(),
+        };
+      }),
+    );
+
+    return {
+      source: 'official-bulletin' as const,
+      updatedAt: latestReference.referenceAt.toISOString(),
+      total: items.length,
+      items,
+    };
+  }
+
+  private bulletinFallback(product?: string) {
+    const query = product?.toLocaleLowerCase('pt-BR').trim();
+    const selected = query
+      ? OFFICIAL_MARKET_BULLETIN_2026_07_22.filter((item) =>
+          item.productName.toLocaleLowerCase('pt-BR').includes(query),
+        )
+      : OFFICIAL_MARKET_BULLETIN_2026_07_22;
+
+    return {
+      source: 'official-bulletin-memory' as const,
+      updatedAt: BULLETIN_DATE.toISOString(),
+      total: selected.length,
+      items: selected.map((item) => this.toView(item)),
+    };
+  }
+
+  private toView(item: OfficialMarketBulletinItem): MarketPriceView {
+    return {
+      productName: item.productName,
+      category: item.category,
+      unit: item.unit,
+      minPrice: item.minPrice,
+      avgPrice: item.avgPrice,
+      maxPrice: item.maxPrice,
+      variation: 0,
+      referenceAt: item.referenceAt,
+    };
+  }
+
+  async getHistory(product: string, days = 30) {
+    try {
+      await this.ensureOfficialBulletinImported();
+    } catch (error) {
+      this.logger.error('Falha ao importar o boletim oficial.', error);
+    }
+
+    const safeDays = Number.isFinite(days)
+      ? Math.min(Math.max(Math.trunc(days), 1), 365)
+      : 30;
+    const decodedProduct = decodeURIComponent(product);
+    const from = new Date();
+    from.setDate(from.getDate() - safeDays);
+
+    const rows = await prisma.marketPrice.findMany({
+      where: {
+        productName: {
+          equals: decodedProduct,
+          mode: 'insensitive',
+        },
+        referenceAt: {
+          gte: from,
+        },
+      },
+      orderBy: {
+        referenceAt: 'asc',
+      },
+      take: 365,
+    });
+
+    if (rows.length === 0) {
+      const bulletinItem =
+        BULLETIN_BY_PRODUCT.get(decodedProduct.toLocaleLowerCase('pt-BR')) ??
+        DEFAULT_ITEM;
+
+      if (!bulletinItem) {
+        return {
+          source: 'official-bulletin-memory' as const,
+          productName: decodedProduct,
+          unit: '',
+          days: safeDays,
+          items: [],
+        };
+      }
+
+      return {
+        source: 'official-bulletin-memory' as const,
+        productName: bulletinItem.productName,
+        unit: bulletinItem.unit,
+        days: safeDays,
+        items: [
+          {
+            label: '22/07',
+            referenceAt: bulletinItem.referenceAt,
+            minPrice: bulletinItem.minPrice,
+            avgPrice: bulletinItem.avgPrice,
+            maxPrice: bulletinItem.maxPrice,
+          },
+        ],
+      };
+    }
+
+    const firstRow = rows[0];
+    if (!firstRow) {
+      throw new Error('Não foi possível determinar o produto do histórico.');
+    }
+
+    return {
+      source: 'official-bulletin' as const,
+      productName: firstRow.productName,
+      unit: firstRow.unit,
+      days: safeDays,
+      items: rows.map((row) => ({
+        label: new Intl.DateTimeFormat('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+        }).format(row.referenceAt),
+        referenceAt: row.referenceAt.toISOString(),
+        minPrice: Number(row.minPrice),
+        avgPrice: Number(row.avgPrice),
+        maxPrice: Number(row.maxPrice),
+      })),
+    };
+  }
+
+  async getDashboard(options: DashboardOptions) {
+    const pricesResponse = await this.getLatestPrices(options.product);
+    const prices = pricesResponse.items;
+
+    const requested = options.product?.toLocaleLowerCase('pt-BR');
+    const selectedProduct =
+      prices.find(
+        (item) =>
+          item.productName.toLocaleLowerCase('pt-BR') === requested,
+      )?.productName ??
+      prices[0]?.productName ??
+      DEFAULT_ITEM?.productName ??
+      '';
+
+    const history = await this.getHistory(selectedProduct, options.days);
+    const highest =
+      [...prices].sort((left, right) => right.variation - left.variation)[0] ??
+      null;
+    const lowest =
+      [...prices].sort((left, right) => left.variation - right.variation)[0] ??
+      null;
+
+    return {
+      source: pricesResponse.source,
+      updatedAt: pricesResponse.updatedAt,
+      filters: {
+        product: selectedProduct,
+        days: options.days,
+      },
+      summary: {
+        totalProducts: pricesResponse.total,
+        bulletinDate: '2026-07-22',
+        market: 'CEASA-MG Unidade Grande BH',
+      },
+      highlights: {
+        highestIncrease: highest,
+        highestDecrease: lowest,
+        mostViewed: prices[0] ?? null,
+      },
+      prices,
+      history,
+    };
+  }
+}
