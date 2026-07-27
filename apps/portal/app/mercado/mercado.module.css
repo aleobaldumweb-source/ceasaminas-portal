@@ -358,3 +358,22 @@
     flex-direction: column;
   }
 }
+
+.emptyState {
+  padding: 48px;
+  border: 1px solid #d6dfd8;
+  border-radius: 18px;
+  background: #fff;
+  text-align: center;
+}
+
+.emptyState h2 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 2rem;
+}
+
+.emptyState p {
+  margin-bottom: 0;
+  color: #607067;
+}

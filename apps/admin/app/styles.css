@@ -349,3 +349,128 @@ td small {
     padding: 18px;
   }
 }
+
+/* Mercado */
+.market-metrics article small,
+.panel-note {
+  color: var(--muted);
+}
+.metric-date {
+  font-size: 1.55rem !important;
+}
+.metric-variation {
+  font-size: 2rem !important;
+}
+.metric-variation.positive {
+  color: #126b3a;
+}
+.metric-variation.negative {
+  color: #a22e2e;
+}
+.market-dropzone {
+  border: 2px dashed #bdc8bf;
+  border-radius: 14px;
+  min-height: 230px;
+  padding: 34px;
+  background: #fafcfb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: 160ms ease;
+}
+.market-dropzone.dragging,
+.market-dropzone.selected {
+  border-color: var(--green);
+  background: #eef8f1;
+}
+.market-dropzone strong {
+  font-size: 1.05rem;
+  margin-bottom: 7px;
+}
+.market-dropzone span {
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+.drop-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+  background: #e7f4eb;
+  color: var(--green);
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+.file-button {
+  margin: 0;
+  border: 1px solid var(--line);
+  background: white;
+  padding: 10px 15px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.file-button input {
+  display: none;
+}
+.import-options {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 0;
+  cursor: pointer;
+}
+.checkbox-label input {
+  width: auto;
+  margin: 3px 0 0;
+}
+.checkbox-label span,
+.checkbox-label small {
+  display: block;
+}
+.checkbox-label small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.variation-pill {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-weight: 800;
+  font-size: 0.76rem;
+}
+.variation-pill.up {
+  background: #e7f4eb;
+  color: #0d5b30;
+}
+.variation-pill.down {
+  background: #faeaea;
+  color: #9e2e2e;
+}
+.variation-pill.stable {
+  background: #ecefed;
+  color: #536058;
+}
+@media (max-width: 720px) {
+  .import-options {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .import-options .primary {
+    width: 100%;
+  }
+  .market-dropzone {
+    padding: 24px 16px;
+  }
+}

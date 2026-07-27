@@ -1,6 +1,14 @@
 'use client';
 
-import { type ChangeEvent, type FormEvent, useEffect, useMemo, useState } from 'react';
+import {
+  type ChangeEvent,
+  type ClipboardEvent,
+  type DragEvent,
+  type FormEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useAuth } from '../components/auth-provider';
 import { authenticatedRequest as request } from '../lib/auth-client';
 
@@ -180,7 +188,7 @@ export default function AdminHome() {
   function handleImageDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
     setDraggingImage(false);
-    applyImageFile(event.dataTransfer.files?.[0] ?? null);
+    applyImageFile(event.dataTransfer.files.item(0));
   }
 
   function handleImagePaste(event: ClipboardEvent<HTMLDivElement>) {
@@ -191,7 +199,11 @@ export default function AdminHome() {
     if (!imageItem) return;
 
     event.preventDefault();
-    applyImageFile(imageItem.getAsFile());
+    const file = imageItem.getAsFile();
+
+    if (!file) return;
+
+    applyImageFile(file);
   }
 
   async function uploadImage(newsId: string, file: File) {
@@ -287,9 +299,7 @@ export default function AdminHome() {
           <span>
             Licitações <small>Em breve</small>
           </span>
-          <span>
-            Mercado <small>Em breve</small>
-          </span>
+          <a href="/market">Mercado</a>
           <span>
             Transparência <small>Em breve</small>
           </span>

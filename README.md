@@ -1,79 +1,23 @@
-# Ceasaminas Digital Platform
+# Painel administrativo do Mercado
 
-Monorepo da modernização do portal da Ceasaminas, contendo portal público, administração, API e serviços locais de infraestrutura.
+Copie a pasta `apps` sobre a raiz do monorepo, substituindo os arquivos existentes.
 
-## Requisitos
+Inclui:
 
-- Windows 11 com WSL 2 e Docker Desktop
-- Node.js 20.19 ou superior
-- pnpm 11
-- Git
+- rota `/market`;
+- upload XLS/XLSX com arrastar e soltar;
+- opção `replace=true`;
+- histórico de boletins;
+- métricas e destaques;
+- tabela pesquisável de preços;
+- link Mercado no menu principal.
 
-## Atualização da Sprint 0.1 para 0.2
-
-Copie os arquivos desta entrega sobre o repositório e execute:
-
-```powershell
-Copy-Item .env.example .env -ErrorAction SilentlyContinue
-pnpm install
-pnpm db:generate
-```
-
-A lista `onlyBuiltDependencies` em `pnpm-workspace.yaml` autoriza os scripts necessários do Prisma e do Sharp. O pacote de telemetria `@scarf/scarf` permanece ignorado.
-
-## Infraestrutura local
+Validação:
 
 ```powershell
-pnpm infra:up
-pnpm infra:status
+pnpm --filter @ceasaminas/admin typecheck
+pnpm --filter @ceasaminas/admin build
+pnpm --filter @ceasaminas/admin dev
 ```
 
-Serviços:
-
-- PostgreSQL: `localhost:5432`
-- Redis: `localhost:6379`
-- Mailpit: `http://localhost:8025`
-- MinIO: `http://localhost:9001`
-
-## Prisma
-
-```powershell
-pnpm db:generate
-pnpm db:migrate -- --name initial_schema
-```
-
-## Aplicações
-
-```powershell
-pnpm dev
-```
-
-- Portal: `http://localhost:3000`
-- Administração: `http://localhost:3001`
-- API: `http://localhost:3333/api/v1/health`
-- Swagger: `http://localhost:3333/docs`
-
-## Qualidade
-
-```powershell
-pnpm format:check
-pnpm typecheck
-pnpm build
-```
-
-## Estrutura
-
-```text
-apps/
-  portal/
-  admin/
-  api/
-packages/
-  auth/
-  config/
-  database/
-  shared/
-  ui/
-docs/
-infra/
-```
+Abra `http://localhost:3001/market`.

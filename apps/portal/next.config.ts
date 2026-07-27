@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ['10.18.120.101'],
+
   images: {
     remotePatterns: [
       {
@@ -12,6 +14,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'http',
         hostname: '127.0.0.1',
+        port: '3333',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '10.18.120.101',
         port: '3333',
         pathname: '/uploads/**',
       },

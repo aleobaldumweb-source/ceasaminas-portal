@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { MarketChart } from '@/components/market-chart';
+import { getMarketDashboard, type MarketDashboard } from '@/lib/market';
 
 import styles from './mercado.module.css';
 
@@ -12,94 +13,34 @@ export const metadata: Metadata = {
   description: 'Painel de preços, tendências e informações de mercado da Ceasaminas.',
 };
 
-const marketProducts = [
-  {
-    name: 'Banana-prata',
-    unit: 'cx. 20 kg',
-    price: 88.5,
-    variation: 4.2,
-    category: 'Frutas',
-  },
-  {
-    name: 'Tomate longa vida',
-    unit: 'cx. 22 kg',
-    price: 96.0,
-    variation: -2.1,
-    category: 'Hortaliças',
-  },
-  {
-    name: 'Batata inglesa',
-    unit: 'sc. 50 kg',
-    price: 154.0,
-    variation: 8.4,
-    category: 'Tubérculos',
-  },
-  {
-    name: 'Cenoura',
-    unit: 'cx. 20 kg',
-    price: 72.0,
-    variation: 1.5,
-    category: 'Hortaliças',
-  },
-  {
-    name: 'Abacaxi pérola',
-    unit: 'unidade',
-    price: 7.4,
-    variation: -0.9,
-    category: 'Frutas',
-  },
-  {
-    name: 'Mamão formosa',
-    unit: 'cx. 18 kg',
-    price: 74.5,
-    variation: 3.1,
-    category: 'Frutas',
-  },
-] as const;
+export const dynamic = 'force-dynamic';
 
-const chartDatasets = {
-  'Banana-prata': [
-    { label: 'Seg', value: 82.0 },
-    { label: 'Ter', value: 83.5 },
-    { label: 'Qua', value: 84.0 },
-    { label: 'Qui', value: 86.2 },
-    { label: 'Sex', value: 88.5 },
-  ],
-  'Tomate longa vida': [
-    { label: 'Seg', value: 101.0 },
-    { label: 'Ter', value: 99.5 },
-    { label: 'Qua', value: 98.0 },
-    { label: 'Qui', value: 97.2 },
-    { label: 'Sex', value: 96.0 },
-  ],
-  'Batata inglesa': [
-    { label: 'Seg', value: 138.0 },
-    { label: 'Ter', value: 141.0 },
-    { label: 'Qua', value: 146.0 },
-    { label: 'Qui', value: 149.5 },
-    { label: 'Sex', value: 154.0 },
-  ],
-};
+async function loadDashboard(): Promise<MarketDashboard | null> {
+  try {
+    return await getMarketDashboard();
+  } catch (error) {
+    console.error('Não foi possível carregar o painel de mercado:', error);
+    return null;
+  }
+}
 
-const highlights = [
-  {
-    title: 'Maior alta',
-    value: '+8,4%',
-    product: 'Batata inglesa',
-  },
-  {
-    title: 'Maior baixa',
-    value: '-2,1%',
-    product: 'Tomate longa vida',
-  },
-  {
-    title: 'Mais consultado',
-    value: '1º',
-    product: 'Banana-prata',
-  },
-] as const;
+export default async function MarketPage() {
+  const dashboard = await loadDashboard();
+  const prices = dashboard?.prices ?? [];
+  const selected = dashboard?.history.productName ?? 'Banana-prata';
 
-export default function MarketPage() {
+  const chartDatasets = {
+    [selected]:
+      dashboard?.history.items.map((item) => ({
+        label: item.label,
+        value: item.avgPrice,
+      })) ?? [],
+  };
+
+  const highest = dashboard?.highlights.highestIncrease;
+  const lowest = dashboard?.highlights.highestDecrease;
+  const viewed = dashboard?.highlights.mostViewed;
+
   return (
     <>
       <Header />
@@ -125,8 +66,22 @@ export default function MarketPage() {
 
               <aside className={styles.heroSummary}>
                 <span>Última atualização</span>
-                <strong>Hoje, 08h30</strong>
-                <small>Dados demonstrativos para desenvolvimento.</small>
+                <strong>
+                  {dashboard
+                    ? new Intl.DateTimeFormat('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'America/Sao_Paulo',
+                      }).format(new Date(dashboard.updatedAt))
+                    : 'Indisponível'}
+                </strong>
+                <small>
+                  {dashboard?.source === 'database'
+                    ? 'Dados carregados do banco de dados.'
+                    : 'Dados demonstrativos enquanto não há cotações cadastradas.'}
+                </small>
               </aside>
             </div>
           </div>
@@ -138,114 +93,145 @@ export default function MarketPage() {
               <span>Unidade</span>
               <strong>Contagem</strong>
             </div>
-
             <div>
               <span>Categoria</span>
               <strong>Todos os produtos</strong>
             </div>
-
             <div>
               <span>Período</span>
-              <strong>Últimos 5 dias</strong>
+              <strong>Últimos {dashboard?.filters.days ?? 30} dias</strong>
             </div>
-
             <button type="button">Atualizar painel</button>
           </div>
         </section>
 
         <section className={styles.dashboardSection}>
           <div className={styles.container}>
-            <div className={styles.highlights}>
-              {highlights.map((highlight) => (
-                <article key={highlight.title}>
-                  <span>{highlight.title}</span>
-                  <strong>{highlight.value}</strong>
-                  <p>{highlight.product}</p>
-                </article>
-              ))}
-            </div>
-
-            <div className={styles.dashboardGrid}>
-              <MarketChart title="Evolução dos preços" unit="R$" datasets={chartDatasets} />
-
-              <aside className={styles.ranking}>
-                <header>
-                  <p className={styles.eyebrow}>Resumo diário</p>
-                  <h2>Produtos em destaque</h2>
-                </header>
-
-                <div>
-                  {marketProducts.slice(0, 5).map((product, index) => (
-                    <article key={product.name}>
-                      <span>{String(index + 1).padStart(2, '0')}</span>
-
-                      <div>
-                        <strong>{product.name}</strong>
-                        <small>{product.unit}</small>
-                      </div>
-
-                      <b>
-                        R${' '}
-                        {product.price.toLocaleString('pt-BR', {
-                          minimumFractionDigits: 2,
-                        })}
-                      </b>
-                    </article>
-                  ))}
-                </div>
-              </aside>
-            </div>
-
-            <section className={styles.tableSection}>
-              <header className={styles.sectionHeader}>
-                <div>
-                  <p className={styles.eyebrow}>Cotações</p>
-                  <h2>Referências por produto</h2>
-                </div>
-
-                <button type="button">Exportar dados</button>
-              </header>
-
-              <div className={styles.tableWrapper}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Produto</th>
-                      <th>Categoria</th>
-                      <th>Unidade</th>
-                      <th>Preço médio</th>
-                      <th>Variação</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {marketProducts.map((product) => (
-                      <tr key={product.name}>
-                        <td>
-                          <strong>{product.name}</strong>
-                        </td>
-                        <td>{product.category}</td>
-                        <td>{product.unit}</td>
-                        <td>
-                          R${' '}
-                          {product.price.toLocaleString('pt-BR', {
-                            minimumFractionDigits: 2,
-                          })}
-                        </td>
-                        <td>
-                          <span
-                            className={product.variation >= 0 ? styles.positive : styles.negative}
-                          >
-                            {product.variation >= 0 ? '▲' : '▼'}{' '}
-                            {Math.abs(product.variation).toLocaleString('pt-BR')}%
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {!dashboard ? (
+              <div className={styles.emptyState} role="status">
+                <h2>Painel temporariamente indisponível</h2>
+                <p>Verifique se a API está em execução e tente novamente.</p>
               </div>
-            </section>
+            ) : (
+              <>
+                <div className={styles.highlights}>
+                  <article>
+                    <span>Maior alta</span>
+                    <strong>
+                      {highest ? `+${highest.variation.toLocaleString('pt-BR')}%` : '—'}
+                    </strong>
+                    <p>{highest?.productName ?? 'Sem dados'}</p>
+                  </article>
+
+                  <article>
+                    <span>Maior baixa</span>
+                    <strong>{lowest ? `${lowest.variation.toLocaleString('pt-BR')}%` : '—'}</strong>
+                    <p>{lowest?.productName ?? 'Sem dados'}</p>
+                  </article>
+
+                  <article>
+                    <span>Mais consultado</span>
+                    <strong>1º</strong>
+                    <p>{viewed?.productName ?? 'Sem dados'}</p>
+                  </article>
+                </div>
+
+                <div className={styles.dashboardGrid}>
+                  <MarketChart title="Evolução dos preços" unit="R$" datasets={chartDatasets} />
+
+                  <aside className={styles.ranking}>
+                    <header>
+                      <p className={styles.eyebrow}>Resumo diário</p>
+                      <h2>Produtos em destaque</h2>
+                    </header>
+
+                    <div>
+                      {prices.slice(0, 5).map((product, index) => (
+                        <article key={product.productName}>
+                          <span>{String(index + 1).padStart(2, '0')}</span>
+                          <div>
+                            <strong>{product.productName}</strong>
+                            <small>{product.unit}</small>
+                          </div>
+                          <b>
+                            R${' '}
+                            {product.avgPrice.toLocaleString('pt-BR', {
+                              minimumFractionDigits: 2,
+                            })}
+                          </b>
+                        </article>
+                      ))}
+                    </div>
+                  </aside>
+                </div>
+
+                <section className={styles.tableSection}>
+                  <header className={styles.sectionHeader}>
+                    <div>
+                      <p className={styles.eyebrow}>Cotações</p>
+                      <h2>Referências por produto</h2>
+                    </div>
+                    <button type="button">Exportar dados</button>
+                  </header>
+
+                  <div className={styles.tableWrapper}>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Produto</th>
+                          <th>Categoria</th>
+                          <th>Unidade</th>
+                          <th>Preço mínimo</th>
+                          <th>Preço médio</th>
+                          <th>Preço máximo</th>
+                          <th>Variação</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {prices.map((product) => (
+                          <tr key={product.productName}>
+                            <td>
+                              <strong>{product.productName}</strong>
+                            </td>
+                            <td>{product.category}</td>
+                            <td>{product.unit}</td>
+                            <td>
+                              R${' '}
+                              {product.minPrice.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                              })}
+                            </td>
+                            <td>
+                              R${' '}
+                              {product.avgPrice.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                              })}
+                            </td>
+                            <td>
+                              R${' '}
+                              {product.maxPrice.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                              })}
+                            </td>
+                            <td>
+                              <span
+                                className={
+                                  product.variation >= 0 ? styles.positive : styles.negative
+                                }
+                              >
+                                {product.variation >= 0 ? '▲' : '▼'}{' '}
+                                {Math.abs(product.variation).toLocaleString('pt-BR')}%
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              </>
+            )}
           </div>
         </section>
       </main>
