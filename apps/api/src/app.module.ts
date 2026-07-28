@@ -3,9 +3,10 @@ import { MarketModule } from './market/market.module.js';
 import { HealthController } from './health/health.controller.js';
 import { NewsModule } from './news/news.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { UsersModule } from './users/users.module.js';
 
 @Module({
-  imports: [MarketModule, AuthModule, NewsModule],
+  imports: [MarketModule, AuthModule, NewsModule, UsersModule],
   controllers: [HealthController],
 })
 export class AppModule {}

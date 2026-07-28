@@ -474,3 +474,17 @@ td small {
     padding: 24px 16px;
   }
 }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 14px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+th { color: var(--muted); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
+td small { color: var(--muted); }
+.status { display: inline-flex; padding: 5px 9px; border-radius: 999px; font-size: .78rem; font-weight: 750; background: #eef1ee; }
+.status.active { background: #e1f5e8; color: #146c37; }
+.status.inactive { background: #f1f1f1; color: #59605b; }
+.status.blocked { background: #fde7e5; color: #9c2f27; }
+.feedback { padding: 12px 14px; border-radius: 9px; }
+.feedback.error { background: #fde7e5; color: #8a211a; }
+.feedback.success { background: #e1f5e8; color: #146c37; }
+.standalone { max-width: 760px; margin: 80px auto; }

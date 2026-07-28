@@ -1,23 +1,18 @@
-# Painel administrativo do Mercado
+# Mercado público — Ceasaminas Portal
 
-Copie a pasta `apps` sobre a raiz do monorepo, substituindo os arquivos existentes.
+Copie a pasta `apps` para a raiz do monorepo, permitindo substituir `apps/portal/app/mercado/page.tsx`.
 
-Inclui:
+Arquivos adicionados:
 
-- rota `/market`;
-- upload XLS/XLSX com arrastar e soltar;
-- opção `replace=true`;
-- histórico de boletins;
-- métricas e destaques;
-- tabela pesquisável de preços;
-- link Mercado no menu principal.
+- apps/portal/app/mercado/page.tsx
+- apps/portal/app/mercado/market-panel.tsx
+- apps/portal/app/mercado/market.module.css
+- apps/portal/lib/market.ts
 
 Validação:
 
-```powershell
-pnpm --filter @ceasaminas/admin typecheck
-pnpm --filter @ceasaminas/admin build
-pnpm --filter @ceasaminas/admin dev
-```
+pnpm --filter @ceasaminas/portal typecheck
+pnpm --filter @ceasaminas/portal build
+pnpm --filter @ceasaminas/portal dev
 
-Abra `http://localhost:3001/market`.
+Acesse http://localhost:3000/mercado

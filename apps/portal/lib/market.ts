@@ -1,5 +1,4 @@
 export type MarketPrice = {
-  id?: string;
   productName: string;
   category: string;
   unit: string;
@@ -7,10 +6,10 @@ export type MarketPrice = {
   avgPrice: number;
   maxPrice: number;
   variation: number;
-  referenceAt: string;
+  referenceAt: string | null;
 };
 
-export type MarketHistoryPoint = {
+export type MarketHistoryItem = {
   label: string;
   referenceAt: string;
   minPrice: number;
@@ -18,12 +17,22 @@ export type MarketHistoryPoint = {
   maxPrice: number;
 };
 
+export type MarketHistory = {
+  source: 'database';
+  productName: string;
+  unit: string;
+  days: number;
+  items: MarketHistoryItem[];
+};
+
 export type MarketDashboard = {
-  source: 'database' | 'demonstration';
-  updatedAt: string;
-  filters: {
-    product: string;
-    days: number;
+  source: 'database';
+  updatedAt: string | null;
+  filters: { product: string; days: number };
+  summary: {
+    totalProducts: number;
+    bulletinDate: string | null;
+    market: string | null;
   };
   highlights: {
     highestIncrease: MarketPrice | null;
@@ -31,16 +40,21 @@ export type MarketDashboard = {
     mostViewed: MarketPrice | null;
   };
   prices: MarketPrice[];
-  history: {
-    source: 'database' | 'demonstration';
-    productName: string;
-    unit: string;
-    days: number;
-    items: MarketHistoryPoint[];
-  };
+  history: MarketHistory;
 };
 
-function getApiBaseUrl() {
+export type MarketImport = {
+  id: string;
+  sourceFile: string;
+  market: string;
+  referenceAt: string;
+  importedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  _count?: { prices?: number };
+};
+
+function apiBaseUrl() {
   return (
     process.env.API_URL ??
     process.env.NEXT_PUBLIC_API_URL ??
@@ -48,25 +62,46 @@ function getApiBaseUrl() {
   ).replace(/\/+$/, '');
 }
 
-export async function getMarketDashboard(product?: string, days = 30): Promise<MarketDashboard> {
-  const params = new URLSearchParams();
-
-  if (product) {
-    params.set('product', product);
-  }
-
-  params.set('days', String(days));
-
-  const response = await fetch(`${getApiBaseUrl()}/market/dashboard?${params.toString()}`, {
+async function apiRequest<T>(path: string): Promise<T> {
+  const response = await fetch(`${apiBaseUrl()}${path}`, {
     cache: 'no-store',
-    headers: {
-      Accept: 'application/json',
-    },
+    headers: { Accept: 'application/json' },
   });
 
   if (!response.ok) {
-    throw new Error(`A API de mercado retornou ${response.status}.`);
+    throw new Error(`A API de mercado retornou o status ${response.status}.`);
   }
 
-  return response.json() as Promise<MarketDashboard>;
+  return response.json() as Promise<T>;
+}
+
+export function getMarketDashboard(days = 30, product?: string) {
+  const params = new URLSearchParams({ days: String(days) });
+  if (product?.trim()) params.set('product', product.trim());
+  return apiRequest<MarketDashboard>(`/market/dashboard?${params.toString()}`);
+}
+
+export function getMarketImports(limit = 12) {
+  return apiRequest<MarketImport[]>(`/market/imports?limit=${limit}`);
+}
+
+export function formatMarketDate(value: string | null, withTime = false) {
+  if (!value) return 'Não informado';
+
+  return new Intl.DateTimeFormat('pt-BR', {
+    dateStyle: 'short',
+    ...(withTime ? { timeStyle: 'short' as const } : {}),
+    timeZone: 'America/Sao_Paulo',
+  }).format(new Date(value));
+}
+
+export function formatMarketMoney(value: number) {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
+}
+
+export function formatMarketVariation(value: number) {
+  return `${value > 0 ? '+' : ''}${value.toFixed(2).replace('.', ',')}%`;
 }
