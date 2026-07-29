@@ -193,13 +193,10 @@ export function useProcurements() {
         publishedAt: form.publishedAt ? new Date(form.publishedAt).toISOString() : undefined,
       };
 
-      await authenticatedRequest(
-        editingId ? `/procurements/${editingId}` : '/procurements',
-        {
-          method: editingId ? 'PATCH' : 'POST',
-          body: JSON.stringify(body),
-        },
-      );
+      await authenticatedRequest(editingId ? `/procurements/${editingId}` : '/procurements', {
+        method: editingId ? 'PATCH' : 'POST',
+        body: JSON.stringify(body),
+      });
 
       setMessage(editingId ? 'Licitação atualizada.' : 'Licitação criada.');
       resetForm();
@@ -308,4 +305,3 @@ export function useProcurements() {
     clearFilters,
   };
 }
-

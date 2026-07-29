@@ -1,10 +1,5 @@
 export type ProcurementStatus =
-  | 'DRAFT'
-  | 'OPEN'
-  | 'UNDER_REVIEW'
-  | 'SUSPENDED'
-  | 'CLOSED'
-  | 'CANCELLED';
+  'DRAFT' | 'OPEN' | 'UNDER_REVIEW' | 'SUSPENDED' | 'CLOSED' | 'CANCELLED';
 
 export type ProcurementModality =
   | 'PREGAO_ELETRONICO'

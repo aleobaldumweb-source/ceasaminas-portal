@@ -17,15 +17,33 @@ export default function ProcurementsPage() {
   return (
     <div className="layout">
       <aside>
-        <div className="brand"><b>CEASAMINAS</b><span>Administração</span></div>
-        <nav><a href="/">Notícias</a><a href="/market">Mercado</a><a className="active" href="/procurements">Licitações</a>{isAdmin && <a href="/users">Usuários</a>}</nav>
+        <div className="brand">
+          <b>CEASAMINAS</b>
+          <span>Administração</span>
+        </div>
+        <nav>
+          <a href="/">Notícias</a>
+          <a href="/market">Mercado</a>
+          <a className="active" href="/procurements">
+            Licitações
+          </a>
+          {isAdmin && <a href="/users">Usuários</a>}
+        </nav>
         <footer>● Ambiente administrativo</footer>
       </aside>
 
       <main className="procurements-page">
         <header>
-          <div><p>COMPRAS PÚBLICAS</p><h1>Licitações</h1></div>
-          <div className="header-actions"><span>{user?.name}</span><button type="button" className="secondary" onClick={() => void logout()}>Sair</button></div>
+          <div>
+            <p>COMPRAS PÚBLICAS</p>
+            <h1>Licitações</h1>
+          </div>
+          <div className="header-actions">
+            <span>{user?.name}</span>
+            <button type="button" className="secondary" onClick={() => void logout()}>
+              Sair
+            </button>
+          </div>
         </header>
 
         {procurement.error && <p className="feedback error">{procurement.error}</p>}
@@ -47,8 +65,14 @@ export default function ProcurementsPage() {
 
         <section className="panel procurement-list-panel">
           <div className="section-title procurement-list-title">
-            <div><p>PROCESSOS</p><h2>Licitações cadastradas</h2></div>
-            <span className="results-count">{procurement.filteredItems.length} resultado{procurement.filteredItems.length === 1 ? '' : 's'}</span>
+            <div>
+              <p>PROCESSOS</p>
+              <h2>Licitações cadastradas</h2>
+            </div>
+            <span className="results-count">
+              {procurement.filteredItems.length} resultado
+              {procurement.filteredItems.length === 1 ? '' : 's'}
+            </span>
           </div>
 
           <ProcurementFilters

@@ -475,27 +475,149 @@ td small {
   }
 }
 
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 14px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
-th { color: var(--muted); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
-td small { color: var(--muted); }
-.status { display: inline-flex; padding: 5px 9px; border-radius: 999px; font-size: .78rem; font-weight: 750; background: #eef1ee; }
-.status.active { background: #e1f5e8; color: #146c37; }
-.status.inactive { background: #f1f1f1; color: #59605b; }
-.status.blocked { background: #fde7e5; color: #9c2f27; }
-.feedback { padding: 12px 14px; border-radius: 9px; }
-.feedback.error { background: #fde7e5; color: #8a211a; }
-.feedback.success { background: #e1f5e8; color: #146c37; }
-.standalone { max-width: 760px; margin: 80px auto; }
-.field-wide { grid-column: 1 / -1; }
-.row-actions { display:flex; flex-wrap:wrap; gap:8px; }
-.danger { border:1px solid #d8a9a5; background:#fff; color:#922d25; border-radius:9px; padding:10px 13px; cursor:pointer; font-weight:700; }
-.proc-status { display:inline-flex; padding:5px 9px; border-radius:999px; font-size:.76rem; font-weight:800; background:#ecefed; }
-.proc-status.open { background:#e1f5e8; color:#146c37; }.proc-status.under_review { background:#fff2cc; color:#765a00; }.proc-status.suspended,.proc-status.cancelled { background:#fde7e5; color:#9c2f27; }.proc-status.closed { background:#e7edf5; color:#34516f; }
-.document-links { display:grid; gap:4px; margin-top:7px; }.document-links span { display:flex; gap:6px; align-items:center; }.document-links a { color:var(--green); }.document-links button { border:0; background:none; color:#9c2f27; cursor:pointer; font-size:1.1rem; }
-.document-form { min-width:260px; margin-top:10px; padding:10px; border:1px solid var(--line); border-radius:10px; background:#fafcfb; }.document-form input { margin:0 0 8px; }
-@media(max-width:720px){.field-wide{grid-column:auto}.row-actions{flex-direction:column}.document-form{min-width:220px}}
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+}
+th {
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+td small {
+  color: var(--muted);
+}
+.status {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 750;
+  background: #eef1ee;
+}
+.status.active {
+  background: #e1f5e8;
+  color: #146c37;
+}
+.status.inactive {
+  background: #f1f1f1;
+  color: #59605b;
+}
+.status.blocked {
+  background: #fde7e5;
+  color: #9c2f27;
+}
+.feedback {
+  padding: 12px 14px;
+  border-radius: 9px;
+}
+.feedback.error {
+  background: #fde7e5;
+  color: #8a211a;
+}
+.feedback.success {
+  background: #e1f5e8;
+  color: #146c37;
+}
+.standalone {
+  max-width: 760px;
+  margin: 80px auto;
+}
+.field-wide {
+  grid-column: 1 / -1;
+}
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.danger {
+  border: 1px solid #d8a9a5;
+  background: #fff;
+  color: #922d25;
+  border-radius: 9px;
+  padding: 10px 13px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.proc-status {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  background: #ecefed;
+}
+.proc-status.open {
+  background: #e1f5e8;
+  color: #146c37;
+}
+.proc-status.under_review {
+  background: #fff2cc;
+  color: #765a00;
+}
+.proc-status.suspended,
+.proc-status.cancelled {
+  background: #fde7e5;
+  color: #9c2f27;
+}
+.proc-status.closed {
+  background: #e7edf5;
+  color: #34516f;
+}
+.document-links {
+  display: grid;
+  gap: 4px;
+  margin-top: 7px;
+}
+.document-links span {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.document-links a {
+  color: var(--green);
+}
+.document-links button {
+  border: 0;
+  background: none;
+  color: #9c2f27;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+.document-form {
+  min-width: 260px;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fafcfb;
+}
+.document-form input {
+  margin: 0 0 8px;
+}
+@media (max-width: 720px) {
+  .field-wide {
+    grid-column: auto;
+  }
+  .row-actions {
+    flex-direction: column;
+  }
+  .document-form {
+    min-width: 220px;
+  }
+}
 
 /* Avisos de publicação de licitações */
 .publication-warning {
@@ -571,7 +693,7 @@ td small { color: var(--muted); }
   display: inline-flex;
   padding: 5px 9px;
   border-radius: 999px;
-  font-size: .76rem;
+  font-size: 0.76rem;
   font-weight: 800;
 }
 
@@ -601,7 +723,7 @@ td small { color: var(--muted); }
 
 .pagination span {
   color: var(--muted);
-  font-size: .88rem;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
@@ -642,7 +764,6 @@ td small { color: var(--muted); }
   }
 }
 
-
 /* =========================================================
    Licitações — refinamento visual alinhado ao painel Admin
    ========================================================= */
@@ -660,16 +781,16 @@ td small { color: var(--muted); }
 
 .procurements-page > header h1 {
   font-size: clamp(2.45rem, 4vw, 3.55rem);
-  line-height: .98;
-  letter-spacing: -.035em;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
 }
 
 .procurements-page > header .header-actions {
-  background: rgba(255,255,255,.78);
+  background: rgba(255, 255, 255, 0.78);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 8px 10px 8px 16px;
-  box-shadow: 0 10px 28px rgba(16,37,26,.07);
+  box-shadow: 0 10px 28px rgba(16, 37, 26, 0.07);
 }
 
 .procurements-page > header .header-actions > span {
@@ -680,11 +801,15 @@ td small { color: var(--muted); }
 .procurements-page .feedback {
   margin: 0 0 22px;
   border: 1px solid transparent;
-  box-shadow: 0 8px 24px rgba(16,37,26,.05);
+  box-shadow: 0 8px 24px rgba(16, 37, 26, 0.05);
 }
 
-.procurements-page .feedback.error { border-color: #efc2bd; }
-.procurements-page .feedback.success { border-color: #b8dfc4; }
+.procurements-page .feedback.error {
+  border-color: #efc2bd;
+}
+.procurements-page .feedback.success {
+  border-color: #b8dfc4;
+}
 
 .procurement-metrics {
   gap: 18px;
@@ -697,7 +822,10 @@ td small { color: var(--muted); }
   padding: 24px 24px 22px;
   overflow: hidden;
   border-radius: 17px;
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .procurement-metrics article::before {
@@ -716,21 +844,27 @@ td small { color: var(--muted); }
   right: -38px;
   bottom: -52px;
   border-radius: 999px;
-  background: rgba(18,107,58,.06);
+  background: rgba(18, 107, 58, 0.06);
 }
 
 .procurement-metrics article:hover {
   transform: translateY(-2px);
   border-color: #c8d4ca;
-  box-shadow: 0 18px 42px rgba(16,37,26,.10);
+  box-shadow: 0 18px 42px rgba(16, 37, 26, 0.1);
 }
 
-.procurement-metrics .metric-draft::before { background: #c98918; }
-.procurement-metrics .metric-expiring::before { background: #a33a32; }
-.procurement-metrics .metric-open::before { background: #16894b; }
+.procurement-metrics .metric-draft::before {
+  background: #c98918;
+}
+.procurement-metrics .metric-expiring::before {
+  background: #a33a32;
+}
+.procurement-metrics .metric-open::before {
+  background: #16894b;
+}
 
 .procurement-metrics span {
-  font-size: .92rem;
+  font-size: 0.92rem;
   font-weight: 650;
 }
 
@@ -745,13 +879,13 @@ td small { color: var(--muted); }
 .procurement-metrics small {
   position: relative;
   z-index: 1;
-  font-size: .79rem;
+  font-size: 0.79rem;
 }
 
 .procurements-page .panel {
   border-radius: 18px;
   padding: 28px;
-  box-shadow: 0 12px 38px rgba(16,37,26,.065);
+  box-shadow: 0 12px 38px rgba(16, 37, 26, 0.065);
 }
 
 .procurements-page .section-title {
@@ -763,7 +897,7 @@ td small { color: var(--muted); }
 
 .procurements-page .section-title h2 {
   font-size: 1.75rem;
-  letter-spacing: -.02em;
+  letter-spacing: -0.02em;
 }
 
 .procurement-form-panel {
@@ -777,8 +911,8 @@ td small { color: var(--muted); }
 .procurement-form label {
   margin-bottom: 20px;
   color: #26352b;
-  font-size: .82rem;
-  letter-spacing: .01em;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
 }
 
 .procurement-form input,
@@ -790,7 +924,10 @@ td small { color: var(--muted); }
   border-color: #cfd8d0;
   border-radius: 10px;
   padding: 11px 13px;
-  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
 }
 
 .procurement-form textarea {
@@ -815,7 +952,7 @@ td small { color: var(--muted); }
 .procurement-form .form-actions .primary {
   min-width: 190px;
   min-height: 46px;
-  box-shadow: 0 8px 18px rgba(18,107,58,.2);
+  box-shadow: 0 8px 18px rgba(18, 107, 58, 0.2);
 }
 
 .publication-warning {
@@ -851,9 +988,9 @@ td small { color: var(--muted); }
 
 .procurement-filters .filter-field {
   color: #445249;
-  font-size: .75rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
 }
 
 .procurement-filters .search {
@@ -882,8 +1019,8 @@ td small { color: var(--muted); }
 .procurement-list-panel th {
   padding: 14px 16px;
   color: #5d6b62;
-  font-size: .69rem;
-  letter-spacing: .09em;
+  font-size: 0.69rem;
+  letter-spacing: 0.09em;
   white-space: nowrap;
 }
 
@@ -894,7 +1031,7 @@ td small { color: var(--muted); }
 }
 
 .procurement-list-panel tbody tr {
-  transition: background .15s ease;
+  transition: background 0.15s ease;
 }
 
 .procurement-list-panel tbody tr:hover {
@@ -908,7 +1045,7 @@ td small { color: var(--muted); }
 .procurement-list-panel td:first-child > strong {
   display: block;
   color: #173d25;
-  font-size: .92rem;
+  font-size: 0.92rem;
   margin-bottom: 5px;
 }
 
@@ -934,7 +1071,7 @@ td small { color: var(--muted); }
 .row-actions .danger {
   min-height: 36px;
   padding: 8px 11px;
-  font-size: .78rem;
+  font-size: 0.78rem;
   white-space: nowrap;
 }
 

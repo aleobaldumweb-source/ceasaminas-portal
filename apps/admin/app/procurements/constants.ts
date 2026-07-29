@@ -1,8 +1,4 @@
-import type {
-  ProcurementFormValues,
-  ProcurementModality,
-  ProcurementStatus,
-} from './types';
+import type { ProcurementFormValues, ProcurementModality, ProcurementStatus } from './types';
 
 export const PAGE_SIZE = 10;
 

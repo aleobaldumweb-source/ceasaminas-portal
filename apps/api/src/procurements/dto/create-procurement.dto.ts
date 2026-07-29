@@ -1,10 +1,31 @@
-import { IsDateString, IsEmail, IsEnum, IsNumber, IsOptional, IsString, Length, MaxLength, Min } from 'class-validator';
+import {
+  IsDateString,
+  IsEmail,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export enum ProcurementStatusDto {
-  DRAFT = 'DRAFT', OPEN = 'OPEN', UNDER_REVIEW = 'UNDER_REVIEW', SUSPENDED = 'SUSPENDED', CLOSED = 'CLOSED', CANCELLED = 'CANCELLED',
+  DRAFT = 'DRAFT',
+  OPEN = 'OPEN',
+  UNDER_REVIEW = 'UNDER_REVIEW',
+  SUSPENDED = 'SUSPENDED',
+  CLOSED = 'CLOSED',
+  CANCELLED = 'CANCELLED',
 }
 export enum ProcurementModalityDto {
-  PREGAO_ELETRONICO = 'PREGAO_ELETRONICO', CONCORRENCIA = 'CONCORRENCIA', DISPENSA = 'DISPENSA', INEXIGIBILIDADE = 'INEXIGIBILIDADE', TOMADA_DE_PRECOS = 'TOMADA_DE_PRECOS', CONVITE = 'CONVITE', OUTRA = 'OUTRA',
+  PREGAO_ELETRONICO = 'PREGAO_ELETRONICO',
+  CONCORRENCIA = 'CONCORRENCIA',
+  DISPENSA = 'DISPENSA',
+  INEXIGIBILIDADE = 'INEXIGIBILIDADE',
+  TOMADA_DE_PRECOS = 'TOMADA_DE_PRECOS',
+  CONVITE = 'CONVITE',
+  OUTRA = 'OUTRA',
 }
 
 export class CreateProcurementDto {

@@ -1112,11 +1112,57 @@ th {
     transition: none;
   }
 }
-.result-count { color:var(--muted); margin:1rem 0 1.5rem; }
-.notice-description { color:var(--muted); line-height:1.65; max-width:760px; }
-.notice-list article small { color:var(--muted); display:block; margin-top:.65rem; }
-.notice-documents { display:grid; gap:.55rem; margin-top:1.25rem; }
-.notice-documents a { display:inline-flex; padding:.7rem .85rem; border:1px solid var(--border); border-radius:4px; text-decoration:none; background:#fff; }
-.notice-documents a:hover { border-color:var(--green-800); color:var(--green-800); }
-.status.procurement-open { background:#dff4e7;color:#0d6534 }.status.procurement-under_review { background:#fff2c7;color:#725900 }.status.procurement-suspended,.status.procurement-cancelled {background:#fde5e2;color:#942b23}.status.procurement-closed{background:#e5edf5;color:#31506d}
-.empty-state { padding:4rem 2rem; text-align:center; background:var(--surface); border:1px solid var(--border); }
+.result-count {
+  color: var(--muted);
+  margin: 1rem 0 1.5rem;
+}
+.notice-description {
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 760px;
+}
+.notice-list article small {
+  color: var(--muted);
+  display: block;
+  margin-top: 0.65rem;
+}
+.notice-documents {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1.25rem;
+}
+.notice-documents a {
+  display: inline-flex;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-decoration: none;
+  background: #fff;
+}
+.notice-documents a:hover {
+  border-color: var(--green-800);
+  color: var(--green-800);
+}
+.status.procurement-open {
+  background: #dff4e7;
+  color: #0d6534;
+}
+.status.procurement-under_review {
+  background: #fff2c7;
+  color: #725900;
+}
+.status.procurement-suspended,
+.status.procurement-cancelled {
+  background: #fde5e2;
+  color: #942b23;
+}
+.status.procurement-closed {
+  background: #e5edf5;
+  color: #31506d;
+}
+.empty-state {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
