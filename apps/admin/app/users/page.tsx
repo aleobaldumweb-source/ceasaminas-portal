@@ -66,7 +66,7 @@ export default function UsersPage() {
 
   return <div className="layout">
     <aside><div className="brand"><b>CEASAMINAS</b><span>Administração</span></div>
-      <nav><a href="/">Notícias</a><a href="/market">Mercado</a><a className="active" href="/users">Usuários</a></nav>
+      <nav><a href="/">Notícias</a><a href="/market">Mercado</a><a href="/procurements">Licitações</a><a className="active" href="/users">Usuários</a></nav>
       <footer>● Ambiente administrativo</footer></aside>
     <main><header><div><p>SEGURANÇA E ACESSO</p><h1>Usuários</h1></div><div className="header-actions"><span>{user.name}</span><button className="secondary" onClick={() => void logout()}>Sair</button></div></header>
       {error && <p className="feedback error">{error}</p>}{message && <p className="feedback success">{message}</p>}

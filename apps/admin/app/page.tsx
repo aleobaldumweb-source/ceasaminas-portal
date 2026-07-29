@@ -300,6 +300,7 @@ export default function AdminHome() {
             Licitações <small>Em breve</small>
           </span>
           <a href="/market">Mercado</a>
+          <a href="/procurements">Licitações</a>
           <span>
             Transparência <small>Em breve</small>
           </span>

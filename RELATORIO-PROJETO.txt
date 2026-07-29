@@ -1,0 +1,240 @@
+=====================================
+RELATÓRIO DO PROJETO
+=====================================
+
+Data: 07/28/2026 14:32:46
+
+========== GIT ==========
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .env.auth.example
+	deleted:    01-instalar-campos-noticias.ps1
+	deleted:    02-importar-noticias-oficiais.ps1
+	deleted:    02-importar-noticias-oficiais.ps1.bak-20260721-131437
+	deleted:    02-importar-noticias-oficiais.ps1.bak-20260721-131821
+	deleted:    03-atualizar-imagens-noticias-local.ps1
+	deleted:    03-atualizar-imagens-noticias.ps1
+	deleted:    INSTALAR-BOLETIM-REAL.ps1
+	modified:   LEIA-ME.txt
+	modified:   README-APLICACAO.md
+	modified:   README-AUTH.md
+	modified:   admin-page.tsx
+	modified:   apps/admin/app/page.tsx
+	modified:   apps/admin/app/styles.css
+	modified:   apps/admin/app/users/page.tsx
+	modified:   apps/admin/next-env.d.ts
+	modified:   apps/api/src/app.module.ts
+	modified:   apps/portal/app/licitacoes/page.tsx
+	modified:   apps/portal/app/styles.css
+	modified:   apps/portal/next-env.d.ts
+	deleted:    atualizar-news-service-category.ps1
+	deleted:    backup-admin-auth-20260721-102209/apps/admin/app/auth.css
+	deleted:    backup-admin-auth-20260721-102209/apps/admin/app/layout.tsx
+	deleted:    backup-admin-auth-20260721-102209/apps/admin/app/login/page.tsx
+	deleted:    backup-admin-auth-20260721-102209/apps/admin/app/page.tsx
+	deleted:    backup-admin-auth-20260721-102209/apps/admin/app/styles.css
+	deleted:    backup-admin-auth-20260721-102209/apps/admin/components/auth-gate.tsx
+	deleted:    backup-admin-auth-20260721-102209/apps/admin/components/auth-provider.tsx
+	deleted:    backup-admin-auth-20260721-102209/apps/admin/lib/auth-client.ts
+	deleted:    backup-admin-auth-20260721-102209/apps/admin/lib/auth-types.ts
+	deleted:    backup-global-search-20260723-100358/apps/portal/components/header.tsx
+	deleted:    backup-home-redesign-20260723-095346/apps/portal/app/page.tsx
+	deleted:    backup-imagens-padronizadas-20260723-083514/apps/portal/app/styles.css
+	deleted:    backup-imagens-padronizadas-20260723-083514/apps/portal/components/news-image.tsx
+	deleted:    backup-market-api-20260723-102708/apps/api/src/app.module.ts
+	deleted:    backup-market-api-20260723-102708/apps/portal/app/mercado/page.tsx
+	deleted:    backup-market-api-fix-20260723-103349/apps/api/src/market/market.service.ts
+	deleted:    backup-market-dashboard-20260723-101945/apps/portal/app/mercado/page.tsx
+	deleted:    backup-midia-noticias-20260723-062517/apps/admin/app/page.tsx
+	deleted:    backup-midia-noticias-20260723-062517/apps/api/src/news/news.controller.ts
+	deleted:    backup-midia-noticias-20260723-062517/apps/portal/components/news-image.tsx
+	deleted:    backup-news-cards-refactor-20260723-091457/apps/portal/app/noticias/noticias.module.css
+	deleted:    backup-news-cards-refactor-20260723-091457/apps/portal/app/noticias/page.tsx
+	deleted:    backup-news-components-20260723-090358/apps/portal/app/noticias/noticias.module.css
+	deleted:    backup-news-components-20260723-090358/apps/portal/components/news-image.tsx
+	deleted:    backup-news-detail-20260723-094700/apps/portal/app/noticias/[slug]/page.tsx
+	deleted:    backup-noticias-redesign-20260723-085757/page.tsx
+	deleted:    backup-search-advanced-20260723-101213/apps/portal/app/pesquisa/page.tsx
+	deleted:    backup-search-advanced-20260723-101213/apps/portal/app/pesquisa/pesquisa.module.css
+	deleted:    backup-upload-20260722-135723/apps/api/src/main.ts
+	deleted:    backup-upload-20260722-135938/apps/api/src/main.ts
+	deleted:    backup-upload-20260722-135958/apps/api/src/main.ts
+	deleted:    backup-upload-20260722-140313/apps/api/src/main.ts
+	deleted:    backup-upload-20260722-141646/apps/admin/app/page.tsx
+	deleted:    backup-upload-20260722-141646/apps/admin/lib/auth-client.ts
+	deleted:    backup-upload-20260722-141646/apps/api/src/main.ts
+	deleted:    backup-upload-20260722-141646/apps/api/src/news/news.controller.ts
+	deleted:    backup-upload-20260722-141646/apps/api/src/news/news.service.ts
+	deleted:    backup-upload-20260722-141646/apps/portal/components/news-image.tsx
+	deleted:    backup-upload-20260722-141646/apps/portal/next.config.ts
+	modified:   boletim-normalizado-2026-07-22.json
+	deleted:    ceasaminas-upload-imagens.zip
+	deleted:    corrigir-certificado-importador.ps1
+	deleted:    corrigir-importador-erro-500.ps1
+	modified:   news-image.tsx
+	modified:   packages/database/prisma/schema.prisma
+	modified:   patches/admin-shell-user-menu.tsx
+	modified:   patches/app.module.example.ts
+	modified:   patches/protect-news-controller.example.ts
+	modified:   scripts/test-news-crud.ps1
+	deleted:    teste/INSTALAR-UPLOAD.ps1
+	deleted:    teste/LEIA-ME.txt
+	deleted:    teste/apps/admin/app/page.tsx
+	deleted:    teste/apps/admin/lib/auth-client.ts
+	deleted:    teste/apps/api/src/main.ts
+	deleted:    teste/apps/api/src/news/news.controller.ts
+	deleted:    teste/apps/api/src/news/news.service.ts
+	deleted:    teste/apps/portal/components/news-image.tsx
+	deleted:    teste/apps/portal/next.config.ts
+	deleted:    teste/backup-upload-20260722-141225/apps/api/src/main.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	IMPLEMENTACAO-FASE-1-USUARIOS.md
+	IMPLEMENTACAO-FASE-2-LICITACOES.md
+	README.txt
+	RELATORIO-PROJETO.txt
+	apps/admin/app/procurements/
+	apps/api/src/procurements/
+	apps/api/uploads/procurements/
+	apps/portal/app/licitacoes/procurements-list.tsx
+	packages/database/prisma/migrations/20260728150000_add_procurements/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+Últimos commits:
+a9f29fe feat: implement RBAC, users module and portal improvements
+b7665ef feat: implement admin authentication, news management and market module
+fade7de feat: add market bulletin XLSX import
+e4615a0 feat(database): add market bulletins and price history
+a22cf8c feat(portal): add market intelligence dashboard
+a89795c feat(portal): add advanced global search
+a1a3a51 feat(portal): redesign news experience with reusable editorial components
+37f7967 feat(portal): refactor news listing with reusable cards
+cdeabf0 fix(portal): render uploaded news images
+ec1f998 feat(news): implement image upload for news with Swagger support
+
+========== NODE ==========
+v26.4.0
+
+========== PNPM ==========
+11.13.1
+
+========== DOCKER ==========
+CONTAINER ID   IMAGE                                      COMMAND                  CREATED       STATUS                 PORTS                                                                                      NAMES
+a23a11f2c044   postgres:16-alpine                         "docker-entrypoint.sÔÇª"   11 days ago   Up 3 hours (healthy)   0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp                                                ceasaminas-postgres
+c5f054a1b0f2   redis:7-alpine                             "docker-entrypoint.sÔÇª"   11 days ago   Up 3 hours (healthy)   0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp                                                ceasaminas-redis
+74979bcafef2   axllent/mailpit:v1.27                      "/mailpit"               11 days ago   Up 3 hours (healthy)   0.0.0.0:1025->1025/tcp, [::]:1025->1025/tcp, 0.0.0.0:8025->8025/tcp, [::]:8025->8025/tcp   ceasaminas-mailpit
+98aefca8327c   minio/minio:RELEASE.2025-09-07T16-13-09Z   "/usr/bin/docker-entÔÇª"   11 days ago   Up 3 hours (healthy)   0.0.0.0:9000-9001->9000-9001/tcp, [::]:9000-9001->9000-9001/tcp                            ceasaminas-minio
+
+========== BUILD ==========
+$ turbo build
+ÔÇó turbo 2.10.5
+
+   ÔÇó Packages in scope: @ceasaminas/admin, @ceasaminas/api, @ceasaminas/auth, @ceasaminas/config, @ceasaminas/database, @ceasaminas/portal, @ceasaminas/shared, @ceasaminas/ui
+   ÔÇó Running build in 8 packages
+   ÔÇó Remote caching disabled
+
+@ceasaminas/shared:build: cache miss, executing 68271ae676666d6e
+@ceasaminas/database:build: cache miss, executing 52425e3e62df4255
+@ceasaminas/auth:build: cache miss, executing 5639dac64882b2ef
+@ceasaminas/ui:build: cache miss, executing 48a7591eb0f3f6b4
+@ceasaminas/admin:build: cache miss, executing 9a5171e3d115e064
+@ceasaminas/config:build: cache miss, executing ea104d703fc037e9
+@ceasaminas/portal:build: cache miss, executing 39159ca0267a61db
+@ceasaminas/portal:build: $ next build
+@ceasaminas/ui:build: $ tsc -p tsconfig.json
+@ceasaminas/admin:build: $ next build
+@ceasaminas/database:build: $ tsc -p tsconfig.json
+@ceasaminas/shared:build: $ tsc -p tsconfig.json
+@ceasaminas/auth:build: $ tsc -p tsconfig.json
+@ceasaminas/config:build: $ tsc -p tsconfig.json
+@ceasaminas/admin:build: Ôû▓ Next.js 16.2.10 (Turbopack)
+@ceasaminas/admin:build: - Environments: .env.local
+@ceasaminas/admin:build: 
+@ceasaminas/portal:build: Ôû▓ Next.js 16.2.10 (Turbopack)
+@ceasaminas/portal:build: - Environments: .env.local
+@ceasaminas/portal:build: 
+@ceasaminas/admin:build:   Creating an optimized production build ...
+@ceasaminas/portal:build:   Creating an optimized production build ...
+@ceasaminas/api:build: cache miss, executing 62829bcf83965367
+@ceasaminas/api:build: $ nest build
+@ceasaminas/admin:build: Ô£ô Compiled successfully in 6.8s
+@ceasaminas/admin:build:   Running TypeScript ...
+@ceasaminas/portal:build: Ô£ô Compiled successfully in 6.9s
+@ceasaminas/portal:build:   Running TypeScript ...
+@ceasaminas/admin:build:   Finished TypeScript in 7.8s ...
+@ceasaminas/admin:build:   Collecting page data using 8 workers ...
+@ceasaminas/portal:build:   Finished TypeScript in 8.0s ...
+@ceasaminas/portal:build:   Collecting page data using 11 workers ...
+@ceasaminas/admin:build:   Generating static pages using 8 workers (0/7) ...
+@ceasaminas/portal:build:   Generating static pages using 11 workers (0/6) ...
+@ceasaminas/portal:build:   Generating static pages using 11 workers (1/6) 
+@ceasaminas/portal:build:   Generating static pages using 11 workers (2/6) 
+@ceasaminas/portal:build:   Generating static pages using 11 workers (4/6) 
+@ceasaminas/portal:build: Ô£ô Generating static pages using 11 workers (6/6) in 942ms
+@ceasaminas/portal:build:   Finalizing page optimization ...
+@ceasaminas/portal:build: 
+@ceasaminas/portal:build: Route (app)           Revalidate  Expire
+@ceasaminas/portal:build: Ôöî ãÆ /
+@ceasaminas/portal:build: Ôö£ Ôùï /_not-found
+@ceasaminas/portal:build: Ôö£ Ôùï /contato
+@ceasaminas/portal:build: Ôö£ Ôùï /institucional
+@ceasaminas/portal:build: Ôö£ Ôùï /licitacoes               1m      1y
+@ceasaminas/portal:build: Ôö£ ãÆ /mercado
+@ceasaminas/portal:build: Ôö£ ãÆ /noticias
+@ceasaminas/portal:build: Ôö£ ãÆ /noticias/[slug]
+@ceasaminas/portal:build: Ôö£ ãÆ /pesquisa
+@ceasaminas/portal:build: Ôöö Ôùï /transparencia
+@ceasaminas/portal:build: 
+@ceasaminas/portal:build: 
+@ceasaminas/portal:build: Ôùï  (Static)   prerendered as static content
+@ceasaminas/portal:build: ãÆ  (Dynamic)  server-rendered on demand
+@ceasaminas/portal:build: 
+@ceasaminas/admin:build:   Generating static pages using 8 workers (1/7) 
+@ceasaminas/admin:build:   Generating static pages using 8 workers (3/7) 
+@ceasaminas/admin:build:   Generating static pages using 8 workers (5/7) 
+@ceasaminas/admin:build: Ô£ô Generating static pages using 8 workers (7/7) in 1687ms
+@ceasaminas/admin:build:   Finalizing page optimization ...
+@ceasaminas/admin:build: 
+@ceasaminas/admin:build: Route (app)
+@ceasaminas/admin:build: Ôöî Ôùï /
+@ceasaminas/admin:build: Ôö£ Ôùï /_not-found
+@ceasaminas/admin:build: Ôö£ Ôùï /login
+@ceasaminas/admin:build: Ôö£ Ôùï /market
+@ceasaminas/admin:build: Ôö£ Ôùï /procurements
+@ceasaminas/admin:build: Ôöö Ôùï /users
+@ceasaminas/admin:build: 
+@ceasaminas/admin:build: 
+@ceasaminas/admin:build: Ôùï  (Static)  prerendered as static content
+@ceasaminas/admin:build: 
+
+ Tasks:    8 successful, 8 total
+Cached:    0 cached, 8 total
+  Time:    29s 
+
+ WARNING  no output files found for task @ceasaminas/ui#build. Please check your `outputs` key in `turbo.json`
+
+========== WORKSPACE ==========
+
+Name
+----
+admin
+api
+portal
+
+
+========== PACKAGES ==========
+
+Name
+----
+auth
+config
+database
+shared
+ui
+

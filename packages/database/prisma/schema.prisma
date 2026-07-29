@@ -149,3 +149,62 @@ model AuditLog {
   @@index([resource, resourceId])
   @@map("audit_logs")
 }
+
+enum ProcurementStatus {
+  DRAFT
+  OPEN
+  UNDER_REVIEW
+  SUSPENDED
+  CLOSED
+  CANCELLED
+}
+
+enum ProcurementModality {
+  PREGAO_ELETRONICO
+  CONCORRENCIA
+  DISPENSA
+  INEXIGIBILIDADE
+  TOMADA_DE_PRECOS
+  CONVITE
+  OUTRA
+}
+
+model Procurement {
+  id             String               @id @default(cuid())
+  number         String               @unique
+  title          String
+  description    String
+  modality       ProcurementModality
+  status         ProcurementStatus    @default(DRAFT)
+  openingAt      DateTime?
+  deadlineAt     DateTime?
+  estimatedValue Decimal?              @db.Decimal(14, 2)
+  department     String?
+  contactEmail   String?
+  publishedAt    DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  documents ProcurementDocument[]
+
+  @@index([status, deadlineAt])
+  @@index([modality])
+  @@index([publishedAt])
+  @@map("procurements")
+}
+
+model ProcurementDocument {
+  id            String      @id @default(cuid())
+  procurementId String
+  title         String
+  fileName      String
+  fileUrl       String
+  mimeType      String
+  fileSize      Int
+  createdAt     DateTime    @default(now())
+
+  procurement Procurement @relation(fields: [procurementId], references: [id], onDelete: Cascade)
+
+  @@index([procurementId, createdAt])
+  @@map("procurement_documents")
+}
