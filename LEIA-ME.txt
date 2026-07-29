@@ -1,46 +1,21 @@
-CEASAMINAS — IMPORTAÇÃO DO BOLETIM REAL DE PREÇOS
-Data de referência: 22/07/2026
-Origem: arquivo BoletimPrecos_20260722.xls enviado pelo usuário
-Mercado: CEASA-MG Unidade Grande BH
-Registros normalizados: 223
-Categorias: Hortaliças, Frutas e Ovos
+CEASAMINAS — LICITAÇÕES ADMIN (REFINAMENTO VISUAL)
+
+Implementado:
+- layout mais espaçado e alinhado ao Painel Administrativo;
+- cards de indicadores maiores, com destaque visual por situação;
+- formulário com campos e ações mais legíveis;
+- filtros organizados em painel próprio;
+- tabela com melhor hierarquia, hover, badges e ações padronizadas;
+- responsividade para desktop, tablet e celular;
+- toda a funcionalidade da versão anterior foi preservada.
 
 INSTALAÇÃO
-1. Extraia este ZIP na raiz do repositório ceasaminas-portal.
-2. No PowerShell, na raiz do projeto, execute:
-
-   Set-ExecutionPolicy -Scope Process Bypass
-   .\INSTALAR-BOLETIM-REAL.ps1
-
-3. Reinicie a API:
-
-   pnpm --filter @ceasaminas/api dev
-
-4. Em outro terminal, mantenha o Portal ativo:
-
-   pnpm --filter @ceasaminas/portal dev
-
-5. Abra:
-
-   http://localhost:3000/mercado
-
-VALIDAÇÃO
-Execute:
-
-Invoke-RestMethod http://localhost:3333/api/v1/market/dashboard | ConvertTo-Json -Depth 8
-
-O retorno deverá mostrar:
-- source: official-bulletin
-- summary.totalProducts: 223
-- summary.bulletinDate: 2026-07-22
-
-COMPORTAMENTO
-- A importação é automática e idempotente.
-- No primeiro acesso, os 223 registros são gravados em market_prices.
-- Se já existirem os 223 registros da data, nada é duplicado.
-- Se o PostgreSQL estiver temporariamente indisponível, a API ainda apresenta os dados oficiais diretamente da memória.
-- Como há somente um boletim real disponível, a variação percentual e o gráfico histórico começam em 0/um ponto. Ao importar próximos boletins, a variação será calculada automaticamente contra a cotação anterior.
-
-BACKUP
-O instalador cria:
-apps/api/src/market/market.service.ts.bak-boletim-20260722
+1. Extraia este ZIP na raiz do projeto ceasaminas-portal.
+2. Permita substituir os arquivos existentes.
+3. Execute:
+   pnpm build
+4. Depois:
+   pnpm dev
+5. Abra o Admin em:
+   http://localhost:3001/procurements
+6. Caso a página pareça pequena, pressione Ctrl+0 para retornar o zoom do navegador a 100%.
