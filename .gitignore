@@ -20,6 +20,9 @@ coverage
 # Logs
 *.log
 
+# Runtime uploads
+apps/api/uploads
+
 # OS
 .DS_Store
 Thumbs.db
