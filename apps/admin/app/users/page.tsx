@@ -115,6 +115,7 @@ export default function UsersPage() {
         <nav>
           <a href="/">Notícias</a>
           <a href="/market">Mercado</a>
+          <a href="/procurements">Licitações</a>
           <a className="active" href="/users">
             Usuários
           </a>

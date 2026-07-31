@@ -163,6 +163,7 @@ export default function MarketPage() {
           <a className="active" href="/market">
             Mercado
           </a>
+          <a href="/procurements">Licitações</a>
           <span>
             Transparência <small>Em breve</small>
           </span>
