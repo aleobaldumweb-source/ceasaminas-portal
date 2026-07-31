@@ -1,0 +1,245 @@
+.eyebrow {
+  margin: 0 0 0.8rem;
+  color: var(--green-800);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.introduction {
+  padding-block: clamp(4.5rem, 9vw, 8rem);
+}
+
+.introductionGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+  gap: clamp(3rem, 8vw, 8rem);
+  align-items: start;
+}
+
+.introduction h2,
+.sectionHeader h2,
+.network h2,
+.governanceHeader h2 {
+  margin: 0;
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+  line-height: 0.98;
+}
+
+.introductionCopy {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.introductionCopy p,
+.sectionHeader > p,
+.networkCopy > p,
+.governanceHeader > p {
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.introductionCopy p:first-child {
+  margin-top: 0;
+  color: var(--ink);
+  font-size: 1.28rem;
+}
+
+.principles {
+  padding-block: clamp(4.5rem, 8vw, 7rem);
+  background: var(--surface);
+}
+
+.sectionHeader,
+.governanceHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.65fr);
+  gap: clamp(2rem, 7vw, 7rem);
+  align-items: end;
+  margin-bottom: 3.5rem;
+}
+
+.sectionHeader > p,
+.governanceHeader > p {
+  margin: 0;
+}
+
+.principlesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+
+.principlesGrid article {
+  min-height: 20rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.principlesGrid article > span {
+  display: block;
+  margin-bottom: 5rem;
+  color: var(--green-800);
+  font-weight: 800;
+}
+
+.principlesGrid h3 {
+  margin: 0 0 1rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.75rem;
+}
+
+.principlesGrid p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.network {
+  padding-block: clamp(5rem, 10vw, 9rem);
+  color: var(--white);
+  background: var(--green-950);
+}
+
+.networkGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(3rem, 9vw, 9rem);
+  align-items: center;
+}
+
+.network .eyebrow {
+  color: var(--yellow-500);
+}
+
+.networkCopy > p {
+  max-width: 36rem;
+  color: #dcebe3;
+}
+
+.networkCopy > a {
+  display: inline-flex;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+  color: var(--yellow-500);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.networkCopy > a:hover,
+.networkCopy > a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}
+
+.unitList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.unitList li {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.unitList span {
+  color: var(--yellow-500);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.unitList strong {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  font-weight: 400;
+}
+
+.governance {
+  padding-block: clamp(5rem, 9vw, 8rem);
+}
+
+.publicLinks {
+  border-top: 1px solid var(--border);
+}
+
+.publicLinks > a {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  align-items: center;
+  padding: 1.6rem 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+}
+
+.publicLinks > a > span:first-child {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.45fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: center;
+}
+
+.publicLinks strong {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.4rem;
+}
+
+.publicLinks small {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.publicLinks > a > span:last-child {
+  color: var(--green-800);
+  font-size: 1.4rem;
+  transition: transform 160ms ease;
+}
+
+.publicLinks > a:hover > span:last-child,
+.publicLinks > a:focus-visible > span:last-child {
+  transform: translate(0.2rem, -0.2rem);
+}
+
+@media (max-width: 800px) {
+  .introductionGrid,
+  .sectionHeader,
+  .networkGrid,
+  .governanceHeader {
+    grid-template-columns: 1fr;
+  }
+
+  .principlesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .principlesGrid article {
+    min-height: auto;
+  }
+
+  .principlesGrid article > span {
+    margin-bottom: 3rem;
+  }
+
+  .publicLinks > a > span:first-child {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .publicLinks > a > span:last-child {
+    transition: none;
+  }
+}
