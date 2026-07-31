@@ -61,12 +61,12 @@ jobs:
         run: corepack enable
 
       - name: Install pnpm
-        run: corepack prepare pnpm@11.0.0 --activate
+        run: corepack prepare pnpm@11.13.1 --activate
 
       - name: Configure pnpm cache
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
@@ -79,7 +79,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma client
-        run: pnpm --filter @ceasaminas/database exec prisma generate
+        run: pnpm db:generate
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
 
       - name: Typecheck
         run: pnpm typecheck

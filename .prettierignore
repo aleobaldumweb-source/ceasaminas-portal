@@ -6,3 +6,5 @@ coverage
 .turbo
 pnpm-lock.yaml
 packages/database/src/generated
+backup-*/
+teste/
