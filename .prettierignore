@@ -6,5 +6,6 @@ coverage
 .turbo
 pnpm-lock.yaml
 packages/database/src/generated
+**/next-env.d.ts
 backup-*/
 teste/
