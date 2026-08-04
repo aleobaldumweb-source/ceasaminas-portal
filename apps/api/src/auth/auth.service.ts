@@ -174,8 +174,14 @@ export class AuthService {
       sessionId: session.id,
     });
 
-    await prisma.authSession.update({
-      where: { id: session.id },
+    const rotation = await prisma.authSession.updateMany({
+      where: {
+        id: session.id,
+        userId: session.user.id,
+        refreshTokenHash: this.hashToken(refreshToken),
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
       data: {
         refreshTokenHash: this.hashToken(nextRefreshToken),
         userAgent: meta.userAgent ?? session.userAgent,
@@ -183,6 +189,10 @@ export class AuthService {
         expiresAt: this.refreshExpirationDate(),
       },
     });
+
+    if (rotation.count !== 1) {
+      throw new UnauthorizedException('Sessão expirada ou revogada.');
+    }
 
     const user: AuthUser = {
       id: session.user.id,
