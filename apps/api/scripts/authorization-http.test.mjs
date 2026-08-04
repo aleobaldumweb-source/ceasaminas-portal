@@ -37,6 +37,10 @@ class AuthorizationTestController {
   admin() {
     return { access: 'admin' };
   }
+
+  editor() {
+    return { access: 'editor' };
+  }
 }
 Controller('authorization-test')(AuthorizationTestController);
 
@@ -56,6 +60,18 @@ UseGuards(JwtAuthGuard, RolesGuard)(
   AuthorizationTestController.prototype,
   'admin',
   adminDescriptor,
+);
+
+const editorDescriptor = Object.getOwnPropertyDescriptor(
+  AuthorizationTestController.prototype,
+  'editor',
+);
+Get('editor')(AuthorizationTestController.prototype, 'editor', editorDescriptor);
+Roles(Role.ADMIN, Role.EDITOR)(AuthorizationTestController.prototype, 'editor', editorDescriptor);
+UseGuards(JwtAuthGuard, RolesGuard)(
+  AuthorizationTestController.prototype,
+  'editor',
+  editorDescriptor,
 );
 
 class AuthorizationTestModule {}
@@ -94,6 +110,23 @@ describe('autorização HTTP', () => {
     assert.equal(response.status, 401);
   });
 
+  it('responde 401 quando o token é inválido', async () => {
+    const response = await fetch(`${baseUrl}/admin`, {
+      headers: { Authorization: 'Bearer token-invalido' },
+    });
+
+    assert.equal(response.status, 401);
+  });
+
+  it('responde 401 quando o token está expirado', async () => {
+    const token = jwt.sign({ sub: 'admin', role: Role.ADMIN }, { expiresIn: -1 });
+    const response = await fetch(`${baseUrl}/admin`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    assert.equal(response.status, 401);
+  });
+
   it('responde 403 quando o perfil autenticado não é permitido', async () => {
     const token = jwt.sign({ sub: 'auditor', role: Role.AUDITOR });
     const response = await fetch(`${baseUrl}/admin`, {
@@ -111,5 +144,15 @@ describe('autorização HTTP', () => {
 
     assert.equal(response.status, 200);
     assert.deepEqual(await response.json(), { access: 'admin' });
+  });
+
+  it('aceita editor quando a rota declara mais de um perfil', async () => {
+    const token = jwt.sign({ sub: 'editor', role: Role.EDITOR });
+    const response = await fetch(`${baseUrl}/editor`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { access: 'editor' });
   });
 });
