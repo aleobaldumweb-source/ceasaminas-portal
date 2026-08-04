@@ -28,38 +28,44 @@ export class AuthService {
       throw new ForbiddenException('Token de instalação inválido.');
     }
 
-    const users = await prisma.user.count();
-    if (users > 0) {
-      throw new ConflictException('O administrador inicial já foi configurado.');
-    }
+    const passwordHash = await hash(dto.password, 12);
 
-    const user = await prisma.user.create({
-      data: {
-        name: dto.name.trim(),
-        email: dto.email.trim().toLowerCase(),
-        passwordHash: await hash(dto.password, 12),
-        role: Role.ADMIN,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-      },
+    return prisma.$transaction(async (transaction) => {
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('ceasaminas-bootstrap-admin'))`;
+
+      const users = await transaction.user.count();
+      if (users > 0) {
+        throw new ConflictException('O administrador inicial já foi configurado.');
+      }
+
+      const user = await transaction.user.create({
+        data: {
+          name: dto.name.trim(),
+          email: dto.email.trim().toLowerCase(),
+          passwordHash,
+          role: Role.ADMIN,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      });
+
+      await transaction.auditLog.create({
+        data: {
+          userId: user.id,
+          action: 'AUTH_BOOTSTRAP_ADMIN',
+          resource: 'USER',
+          resourceId: user.id,
+          ipAddress: meta.ipAddress,
+          userAgent: meta.userAgent,
+        },
+      });
+
+      return { user };
     });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: user.id,
-        action: 'AUTH_BOOTSTRAP_ADMIN',
-        resource: 'USER',
-        resourceId: user.id,
-        ipAddress: meta.ipAddress,
-        userAgent: meta.userAgent,
-      },
-    });
-
-    return { user };
   }
 
   async login(dto: LoginDto, meta: RequestMeta) {
