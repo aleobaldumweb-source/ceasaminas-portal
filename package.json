@@ -11,6 +11,7 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
+    "test": "pnpm test:admin-scripts",
     "check": "pnpm lint && pnpm typecheck && pnpm build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
