@@ -1,20 +1,13 @@
 import { config } from 'dotenv';
 import { resolve } from 'node:path';
+import { getConfirmedPassword, validatePassword } from './secret-prompt.mjs';
 
-config({
-  path: resolve(process.cwd(), '../../.env'),
-});
+config({ path: resolve(process.cwd(), '../../.env') });
 
 const email = process.argv[2]?.trim().toLowerCase();
-const password = process.argv[3];
 
-if (!email || !password) {
-  console.error('Uso: node reset-admin-password.mjs EMAIL NOVA_SENHA');
-  process.exit(1);
-}
-
-if (password.length < 8) {
-  console.error('A senha deve possuir pelo menos 8 caracteres.');
+if (!email) {
+  console.error('Uso: pnpm admin:reset-password EMAIL');
   process.exit(1);
 }
 
@@ -26,47 +19,35 @@ const [{ hash }, { prisma }] = await Promise.all([
 try {
   const existingUser = await prisma.user.findUnique({
     where: { email },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-    },
+    select: { id: true, email: true, name: true, role: true },
   });
 
   if (!existingUser) {
-    console.error(`Usuário não encontrado: ${email}`);
-    process.exitCode = 1;
-  } else {
-    const passwordHash = await hash(password, 12);
-
-    await prisma.user.update({
-      where: { email },
-      data: {
-        passwordHash,
-        status: 'ACTIVE',
-      },
-    });
-
-    await prisma.authSession.updateMany({
-      where: {
-        userId: existingUser.id,
-        revokedAt: null,
-      },
-      data: {
-        revokedAt: new Date(),
-      },
-    });
-
-    console.log('');
-    console.log('Senha redefinida com sucesso.');
-    console.log(`Usuário: ${existingUser.name}`);
-    console.log(`E-mail: ${existingUser.email}`);
-    console.log(`Perfil: ${existingUser.role}`);
-    console.log('As sessões anteriores foram revogadas.');
+    throw new Error(`Usuário não encontrado: ${email}`);
   }
+
+  const password = await getConfirmedPassword();
+  validatePassword(password);
+  const passwordHash = await hash(password, 12);
+
+  await prisma.$transaction(async (transaction) => {
+    await transaction.user.update({
+      where: { email },
+      data: { passwordHash, status: 'ACTIVE' },
+    });
+    await transaction.authSession.updateMany({
+      where: { userId: existingUser.id, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+  });
+
+  console.log('Senha redefinida com sucesso.');
+  console.log(`Usuário: ${existingUser.name}`);
+  console.log(`E-mail: ${existingUser.email}`);
+  console.log(`Perfil: ${existingUser.role}`);
+  console.log('As sessões anteriores foram revogadas.');
 } catch (error) {
-  console.error('Falha ao redefinir a senha:', error);
+  console.error(error instanceof Error ? error.message : 'Falha ao redefinir a senha.');
   process.exitCode = 1;
 } finally {
   await prisma.$disconnect();

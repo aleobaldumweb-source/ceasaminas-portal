@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -17,6 +18,10 @@ import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { randomUUID } from 'node:crypto';
 import { mkdir, rename, unlink } from 'node:fs/promises';
 import { extname, resolve } from 'node:path';
+import { Role } from '../auth/auth.types.js';
+import { Roles } from '../auth/decorators/roles.decorator.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { CreateNewsDto } from './dto/create-news.dto.js';
 import { UpdateNewsDto } from './dto/update-news.dto.js';
 import { NewsService } from './news.service.js';
@@ -42,6 +47,9 @@ export class NewsController {
   }
 
   @Get('admin')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.EDITOR, Role.JOURNALIST, Role.AUDITOR)
   findAdmin() {
     return this.newsService.findAdmin();
   }
@@ -52,12 +60,17 @@ export class NewsController {
   }
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.EDITOR, Role.JOURNALIST)
   create(@Body() input: CreateNewsDto) {
     return this.newsService.create(input);
   }
 
   @Post(':id/image')
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.EDITOR, Role.JOURNALIST)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -123,16 +136,25 @@ export class NewsController {
   }
 
   @Delete(':id/image')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.EDITOR, Role.JOURNALIST)
   removeImage(@Param('id') id: string) {
     return this.newsService.removeImage(id);
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.EDITOR, Role.JOURNALIST)
   update(@Param('id') id: string, @Body() input: UpdateNewsDto) {
     return this.newsService.update(id, input);
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   remove(@Param('id') id: string) {
     return this.newsService.remove(id);
   }
