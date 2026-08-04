@@ -10,9 +10,16 @@ const [{ Role }, { ROLES_KEY }, { JwtAuthGuard }, { RolesGuard }] = await Promis
   import('../dist/auth/guards/jwt-auth.guard.js'),
   import('../dist/auth/guards/roles.guard.js'),
 ]);
-const [{ MarketImportController }, { NewsController }] = await Promise.all([
+const [
+  { MarketImportController },
+  { NewsController },
+  { ProcurementsController },
+  { UsersController },
+] = await Promise.all([
   import('../dist/market/import/market-import.controller.js'),
   import('../dist/news/news.controller.js'),
+  import('../dist/procurement/procurements.controller.js'),
+  import('../dist/users/users.controller.js'),
 ]);
 
 function executionContext(user) {
@@ -30,6 +37,11 @@ function assertPolicy(controller, methodName, expectedRoles) {
 
   assert.deepEqual(roles, expectedRoles);
   assert.deepEqual(guards, [JwtAuthGuard, RolesGuard]);
+}
+
+function assertControllerPolicy(controller, expectedRoles) {
+  assert.deepEqual(Reflect.getMetadata(ROLES_KEY, controller), expectedRoles);
+  assert.deepEqual(Reflect.getMetadata(GUARDS_METADATA, controller), [JwtAuthGuard, RolesGuard]);
 }
 
 describe('RolesGuard', () => {
@@ -75,5 +87,20 @@ describe('políticas dos controllers administrativos', () => {
       Role.JOURNALIST,
       Role.AUDITOR,
     ]);
+  });
+
+  it('reserva toda a administração de usuários ao perfil administrador', () => {
+    assertControllerPolicy(UsersController, [Role.ADMIN]);
+  });
+
+  it('protege escrita e documentos de licitações por perfil', () => {
+    const editors = [Role.ADMIN, Role.EDITOR];
+
+    assertPolicy(ProcurementsController, 'findAdmin', [Role.ADMIN, Role.EDITOR, Role.AUDITOR]);
+    assertPolicy(ProcurementsController, 'create', editors);
+    assertPolicy(ProcurementsController, 'update', editors);
+    assertPolicy(ProcurementsController, 'upload', editors);
+    assertPolicy(ProcurementsController, 'removeDocument', editors);
+    assertPolicy(ProcurementsController, 'remove', [Role.ADMIN]);
   });
 });
