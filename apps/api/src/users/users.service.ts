@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { hash } from 'bcryptjs';
 import { prisma } from '@ceasaminas/database';
 import type { AuthUser } from '../auth/auth.types.js';
@@ -56,6 +61,14 @@ export class UsersService {
   async update(id: string, input: UpdateUserDto, actor: AuthUser) {
     const current = await prisma.user.findUnique({ where: { id }, select: { id: true } });
     if (!current) throw new NotFoundException('Usuário não encontrado.');
+
+    if (id === actor.id && input.role && input.role !== 'ADMIN') {
+      throw new BadRequestException('Não é permitido remover o próprio perfil de administrador.');
+    }
+
+    if (id === actor.id && input.status && input.status !== 'ACTIVE') {
+      throw new BadRequestException('Não é permitido bloquear ou inativar a própria conta.');
+    }
 
     if (input.email) {
       const duplicate = await prisma.user.findFirst({

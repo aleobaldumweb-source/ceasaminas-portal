@@ -57,4 +57,24 @@ describe('UsersService', () => {
     assert.equal(auditEntry.metadata.passwordChanged, true);
     assert.equal(JSON.stringify(auditEntry).includes('senha-segura-123'), false);
   });
+
+  it('impede que o administrador remova o próprio perfil', async () => {
+    prisma.user.findUnique = async () => ({ id: 'admin-1' });
+    const service = new UsersService();
+
+    await assert.rejects(
+      () => service.update('admin-1', { role: 'EDITOR' }, { id: 'admin-1', role: 'ADMIN' }),
+      /Não é permitido remover o próprio perfil de administrador/,
+    );
+  });
+
+  it('impede que o administrador bloqueie a própria conta', async () => {
+    prisma.user.findUnique = async () => ({ id: 'admin-1' });
+    const service = new UsersService();
+
+    await assert.rejects(
+      () => service.update('admin-1', { status: 'BLOCKED' }, { id: 'admin-1', role: 'ADMIN' }),
+      /Não é permitido bloquear ou inativar a própria conta/,
+    );
+  });
 });
