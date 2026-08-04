@@ -65,6 +65,9 @@ export class UsersService {
       if (duplicate) throw new ConflictException('Já existe um usuário com esse e-mail.');
     }
 
+    const shouldRevokeSessions =
+      Boolean(input.password) || Boolean(input.status && input.status !== 'ACTIVE');
+
     return prisma.$transaction(async (tx) => {
       const user = await tx.user.update({
         where: { id },
@@ -83,10 +86,14 @@ export class UsersService {
           action: 'USER_UPDATED',
           resource: 'USER',
           resourceId: user.id,
-          metadata: { role: user.role, status: user.status },
+          metadata: {
+            role: user.role,
+            status: user.status,
+            passwordChanged: Boolean(input.password),
+          },
         },
       });
-      if (input.status && input.status !== 'ACTIVE') {
+      if (shouldRevokeSessions) {
         await tx.authSession.updateMany({
           where: { userId: id, revokedAt: null },
           data: { revokedAt: new Date() },
