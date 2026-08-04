@@ -55,6 +55,7 @@ const variation = (value: number) =>
 
 export default function MarketPage() {
   const { user, logout } = useAuth();
+  const canImport = user?.role === 'ADMIN' || user?.role === 'EDITOR';
   const [file, setFile] = useState<File | null>(null);
   const [replace, setReplace] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -217,7 +218,7 @@ export default function MarketPage() {
             <small>{down?.productName ?? 'Sem histórico'}</small>
           </article>
         </section>
-        <section className="panel">
+        <section className="panel" hidden={!canImport}>
           <div className="section-title">
             <div>
               <p>IMPORTAÇÃO</p>
