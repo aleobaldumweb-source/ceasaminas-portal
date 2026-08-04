@@ -45,6 +45,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Sessão inválida, expirada ou revogada.');
     }
 
-    return session.user;
+    return { ...session.user, sessionId: session.id };
   }
 }

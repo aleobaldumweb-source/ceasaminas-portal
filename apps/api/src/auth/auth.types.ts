@@ -12,6 +12,10 @@ export type AuthUser = {
   role: Role;
 };
 
+export type AuthenticatedUser = AuthUser & {
+  sessionId: string;
+};
+
 export type JwtPayload = {
   sub: string;
   email: string;

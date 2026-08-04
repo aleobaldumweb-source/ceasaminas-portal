@@ -26,13 +26,13 @@ describe('JwtStrategy', () => {
     let receivedQuery;
     prisma.authSession.findFirst = async (query) => {
       receivedQuery = query;
-      return { user: expectedUser };
+      return { id: 'session-1', user: expectedUser };
     };
 
     const strategy = new JwtStrategy();
     const user = await strategy.validate({ sub: 'user-1', sessionId: 'session-1' });
 
-    assert.deepEqual(user, expectedUser);
+    assert.deepEqual(user, { ...expectedUser, sessionId: 'session-1' });
     assert.equal(receivedQuery.where.id, 'session-1');
     assert.equal(receivedQuery.where.userId, 'user-1');
     assert.equal(receivedQuery.where.revokedAt, null);

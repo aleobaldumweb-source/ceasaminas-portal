@@ -208,23 +208,18 @@ export class AuthService {
     };
   }
 
-  async logout(userId: string, refreshToken: string | undefined, meta: RequestMeta) {
-    if (refreshToken) {
-      await prisma.authSession.updateMany({
-        where: {
-          userId,
-          refreshTokenHash: this.hashToken(refreshToken),
-          revokedAt: null,
-        },
-        data: { revokedAt: new Date() },
-      });
-    }
+  async logout(userId: string, sessionId: string, meta: RequestMeta) {
+    await prisma.authSession.updateMany({
+      where: { id: sessionId, userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
 
     await prisma.auditLog.create({
       data: {
         userId,
         action: 'AUTH_LOGOUT',
         resource: 'SESSION',
+        resourceId: sessionId,
         ipAddress: meta.ipAddress,
         userAgent: meta.userAgent,
       },
