@@ -8,6 +8,7 @@
     "start": "nest start",
     "lint": "eslint \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
+    "test": "pnpm build && node --test scripts/secret-prompt.test.mjs scripts/authorization.test.mjs",
     "test:admin-scripts": "node --test scripts/secret-prompt.test.mjs"
   },
   "dependencies": {

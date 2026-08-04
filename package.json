@@ -11,7 +11,7 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
-    "test": "pnpm test:admin-scripts",
+    "test": "pnpm --filter @ceasaminas/api test",
     "check": "pnpm lint && pnpm typecheck && pnpm build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
