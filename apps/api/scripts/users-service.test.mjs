@@ -9,10 +9,12 @@ const [{ prisma }, { UsersService }] = await Promise.all([
 ]);
 
 const originalFindUnique = prisma.user.findUnique;
+const originalFindFirst = prisma.user.findFirst;
 const originalTransaction = prisma.$transaction;
 
 afterEach(() => {
   prisma.user.findUnique = originalFindUnique;
+  prisma.user.findFirst = originalFindFirst;
   prisma.$transaction = originalTransaction;
 });
 
@@ -75,6 +77,28 @@ describe('UsersService', () => {
     await assert.rejects(
       () => service.update('admin-1', { status: 'BLOCKED' }, { id: 'admin-1', role: 'ADMIN' }),
       /Não é permitido bloquear ou inativar a própria conta/,
+    );
+  });
+
+  it('converte conflito concorrente de e-mail em resposta previsível', async () => {
+    prisma.user.findUnique = async () => null;
+    prisma.$transaction = async () => {
+      throw { code: 'P2002' };
+    };
+    const service = new UsersService();
+
+    await assert.rejects(
+      () =>
+        service.create(
+          {
+            name: 'Usuário',
+            email: 'usuario@ceasaminas.com.br',
+            password: 'senha-segura-123',
+            role: 'JOURNALIST',
+          },
+          { id: 'admin-1', role: 'ADMIN' },
+        ),
+      /Já existe um usuário com esse e-mail/,
     );
   });
 });
