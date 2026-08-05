@@ -248,6 +248,7 @@ export class AuthService {
     return this.jwtService.signAsync(payload, {
       secret: this.refreshSecret(),
       expiresIn: `${this.refreshDays()}d`,
+      jwtid: randomUUID(),
     });
   }
 
