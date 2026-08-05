@@ -1,11 +1,49 @@
-import { Controller, Get } from '@nestjs/common';
+import { prisma } from '@ceasaminas/database';
+import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { constants } from 'node:fs';
+import { access } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+const UPLOAD_DIRECTORY = resolve(process.cwd(), 'uploads');
+
 @ApiTags('health')
 @Controller('health')
 export class HealthController {
+  @Get('live')
+  @ApiOperation({ summary: 'Verifica se o processo da API está ativo' })
+  live() {
+    return this.response('ok');
+  }
+
   @Get()
-  @ApiOperation({ summary: 'Verifica a disponibilidade da API' })
-  check() {
-    return { status: 'ok', service: 'ceasaminas-api', timestamp: new Date().toISOString() };
+  @ApiOperation({ summary: 'Verifica se a API está pronta para receber tráfego' })
+  async check() {
+    const [database, uploads] = await Promise.allSettled([
+      this.checkDatabase(),
+      this.checkUploads(),
+    ]);
+    const checks = {
+      database: database.status === 'fulfilled' ? 'ok' : 'unavailable',
+      uploads: uploads.status === 'fulfilled' ? 'ok' : 'unavailable',
+    } as const;
+
+    if (database.status === 'rejected' || uploads.status === 'rejected') {
+      throw new ServiceUnavailableException({ ...this.response('unavailable'), checks });
+    }
+
+    return { ...this.response('ok'), checks };
+  }
+
+  private response(status: 'ok' | 'unavailable') {
+    return { status, service: 'ceasaminas-api', timestamp: new Date().toISOString() };
+  }
+
+  private async checkDatabase() {
+    await prisma.$queryRaw`SELECT 1`;
+  }
+
+  private async checkUploads() {
+    await access(UPLOAD_DIRECTORY, constants.R_OK | constants.W_OK);
   }
 }
