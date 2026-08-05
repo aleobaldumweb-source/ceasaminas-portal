@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-const { apiPort, apiPrefix, corsOrigins } = await import('../dist/config/runtime-config.js');
+const { apiPort, apiPrefix, authCookiePath, corsOrigins } =
+  await import('../dist/config/runtime-config.js');
 
 describe('configuração de runtime', () => {
   it('normaliza o prefixo configurado', () => {
     assert.equal(apiPrefix({ API_PREFIX: ' /servicos/v2/ ' }), 'servicos/v2');
+    assert.equal(authCookiePath({ API_PREFIX: ' /servicos/v2/ ' }), '/servicos/v2/auth');
     assert.throws(() => apiPrefix({ API_PREFIX: '///' }), /API_PREFIX/);
   });
 

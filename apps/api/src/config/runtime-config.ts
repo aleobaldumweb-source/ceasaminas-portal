@@ -9,6 +9,10 @@ export function apiPrefix(environment: NodeJS.ProcessEnv = process.env) {
   return prefix;
 }
 
+export function authCookiePath(environment: NodeJS.ProcessEnv = process.env) {
+  return `/${apiPrefix(environment)}/auth`;
+}
+
 export function apiPort(environment: NodeJS.ProcessEnv = process.env) {
   const rawPort = environment.API_PORT?.trim() || String(DEFAULT_API_PORT);
   const port = Number(rawPort);
