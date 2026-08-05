@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-const { apiPort, apiPrefix, apiPublicUrl, authCookiePath, corsOrigins } =
+const { apiPort, apiPrefix, apiPublicUrl, authCookiePath, corsOrigins, swaggerEnabled } =
   await import('../dist/config/runtime-config.js');
 
 describe('configuração de runtime', () => {
@@ -38,6 +38,14 @@ describe('configuração de runtime', () => {
       }),
       ['https://portal.ceasaminas.com.br', 'https://admin.ceasaminas.com.br'],
     );
+  });
+
+  it('exige CORS explícito e desativa Swagger por padrão em produção', () => {
+    assert.throws(() => corsOrigins({ NODE_ENV: 'production' }), /CORS_ORIGINS/);
+    assert.equal(swaggerEnabled({ NODE_ENV: 'production' }), false);
+    assert.equal(swaggerEnabled({ NODE_ENV: 'production', SWAGGER_ENABLED: 'true' }), true);
+    assert.equal(swaggerEnabled({}), true);
+    assert.throws(() => swaggerEnabled({ SWAGGER_ENABLED: 'sim' }), /SWAGGER_ENABLED/);
   });
 
   it('rejeita origens CORS com caminho ou protocolo não HTTP', () => {

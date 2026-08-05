@@ -7,7 +7,13 @@ import { config } from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { resolve } from 'node:path';
-import { apiPort, apiPrefix, apiPublicUrl, corsOrigins } from './config/runtime-config.js';
+import {
+  apiPort,
+  apiPrefix,
+  apiPublicUrl,
+  corsOrigins,
+  swaggerEnabled,
+} from './config/runtime-config.js';
 
 config({ path: resolve(process.cwd(), '../../.env') });
 
@@ -49,14 +55,16 @@ async function bootstrap() {
     }),
   );
 
-  const configSwagger = new DocumentBuilder()
-    .setTitle('API Ceasaminas Digital')
-    .setDescription('API do portal, administração e integrações da Ceasaminas.')
-    .setVersion('0.3.0')
-    .addBearerAuth()
-    .build();
+  if (swaggerEnabled()) {
+    const configSwagger = new DocumentBuilder()
+      .setTitle('API Ceasaminas Digital')
+      .setDescription('API do portal, administração e integrações da Ceasaminas.')
+      .setVersion('0.3.0')
+      .addBearerAuth()
+      .build();
 
-  SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, configSwagger));
+    SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, configSwagger));
+  }
   await app.listen(apiPort(), '0.0.0.0');
 }
 

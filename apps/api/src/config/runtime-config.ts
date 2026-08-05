@@ -37,11 +37,22 @@ export function corsOrigins(environment: NodeJS.ProcessEnv = process.env) {
   const configured = environment.CORS_ORIGINS?.split(',')
     .map((origin) => origin.trim().replace(/\/+$/, ''))
     .filter(Boolean);
+  if (!configured?.length && environment.NODE_ENV === 'production') {
+    throw new Error('CORS_ORIGINS é obrigatória em produção.');
+  }
   const origins = configured?.length
     ? configured
     : [environment.ADMIN_ORIGIN ?? DEFAULT_ADMIN_ORIGIN, DEFAULT_PORTAL_ORIGIN];
 
   return [...new Set(origins.map(validateOrigin))];
+}
+
+export function swaggerEnabled(environment: NodeJS.ProcessEnv = process.env) {
+  const configured = environment.SWAGGER_ENABLED?.trim().toLowerCase();
+  if (!configured) return environment.NODE_ENV !== 'production';
+  if (configured === 'true') return true;
+  if (configured === 'false') return false;
+  throw new Error('SWAGGER_ENABLED deve ser true ou false.');
 }
 
 function validateOrigin(origin: string) {
