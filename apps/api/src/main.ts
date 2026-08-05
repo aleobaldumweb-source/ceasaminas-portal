@@ -7,6 +7,7 @@ import { config } from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { resolve } from 'node:path';
+import { apiPort, apiPrefix, corsOrigins } from './config/runtime-config.js';
 
 config({ path: resolve(process.cwd(), '../../.env') });
 
@@ -15,20 +16,21 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useStaticAssets(resolve(process.cwd(), 'uploads'), { prefix: '/uploads/' });
-  app.setGlobalPrefix('api/v1');
+  const prefix = apiPrefix();
+  app.setGlobalPrefix(prefix);
   app.set('trust proxy', 1);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(cookieParser());
 
   app.enableCors({
-    origin: [process.env.ADMIN_ORIGIN ?? 'http://localhost:3001', 'http://localhost:3000'],
+    origin: corsOrigins(),
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-bootstrap-token'],
   });
 
   app.use(
-    '/api/v1/auth/login',
+    `/${prefix}/auth/login`,
     rateLimit({
       windowMs: 15 * 60 * 1000,
       limit: 10,
@@ -54,7 +56,7 @@ async function bootstrap() {
     .build();
 
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, configSwagger));
-  await app.listen(Number(process.env.API_PORT ?? 3333), '0.0.0.0');
+  await app.listen(apiPort(), '0.0.0.0');
 }
 
 void bootstrap();
