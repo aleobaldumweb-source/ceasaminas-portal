@@ -20,6 +20,7 @@ config({ path: resolve(process.cwd(), '../../.env') });
 async function bootstrap() {
   const { AppModule } = await import('./app.module.js');
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableShutdownHooks();
 
   app.useStaticAssets(resolve(process.cwd(), 'uploads'), { prefix: '/uploads/' });
   const prefix = apiPrefix();
