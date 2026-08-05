@@ -24,6 +24,7 @@ import { Roles } from '../auth/decorators/roles.decorator.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { Role, type AuthUser } from '../auth/auth.types.js';
+import { apiPublicUrl } from '../config/runtime-config.js';
 import { CreateProcurementDto } from './dto/create-procurement.dto.js';
 import { UpdateProcurementDto } from './dto/update-procurement.dto.js';
 import { ProcurementsService } from './procurements.service.js';
@@ -128,14 +129,11 @@ export class ProcurementsController {
     const fileName = `procurement-${id}-${Date.now()}-${randomUUID()}${extname(file.originalname).toLowerCase()}`;
     const finalPath = resolve(UPLOAD_DIRECTORY, fileName);
     await rename(file.path, finalPath);
-    const base = (
-      process.env.API_PUBLIC_URL ?? `http://localhost:${process.env.API_PORT ?? 3333}`
-    ).replace(/\/+$/, '');
     try {
       return await this.service.addDocument(
         id,
         file,
-        `${base}/uploads/procurements/${fileName}`,
+        `${apiPublicUrl()}/uploads/procurements/${fileName}`,
         title,
         actor,
       );

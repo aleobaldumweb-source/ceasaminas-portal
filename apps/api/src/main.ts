@@ -7,7 +7,7 @@ import { config } from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { resolve } from 'node:path';
-import { apiPort, apiPrefix, corsOrigins } from './config/runtime-config.js';
+import { apiPort, apiPrefix, apiPublicUrl, corsOrigins } from './config/runtime-config.js';
 
 config({ path: resolve(process.cwd(), '../../.env') });
 
@@ -17,6 +17,7 @@ async function bootstrap() {
 
   app.useStaticAssets(resolve(process.cwd(), 'uploads'), { prefix: '/uploads/' });
   const prefix = apiPrefix();
+  apiPublicUrl();
   app.setGlobalPrefix(prefix);
   app.set('trust proxy', 1);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));

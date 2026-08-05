@@ -22,6 +22,7 @@ import { Role } from '../auth/auth.types.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
+import { apiPublicUrl } from '../config/runtime-config.js';
 import { CreateNewsDto } from './dto/create-news.dto.js';
 import { UpdateNewsDto } from './dto/update-news.dto.js';
 import { NewsService } from './news.service.js';
@@ -124,11 +125,8 @@ export class NewsController {
     const finalPath = resolve(UPLOAD_DIRECTORY, fileName);
     await rename(file.path, finalPath);
 
-    const apiPublicUrl = (
-      process.env.API_PUBLIC_URL ?? `http://localhost:${process.env.API_PORT ?? 3333}`
-    ).replace(/\/+$/, '');
     try {
-      return await this.newsService.setImage(id, `${apiPublicUrl}/uploads/news/${fileName}`);
+      return await this.newsService.setImage(id, `${apiPublicUrl()}/uploads/news/${fileName}`);
     } catch (error) {
       await unlink(finalPath).catch(() => undefined);
       throw error;
