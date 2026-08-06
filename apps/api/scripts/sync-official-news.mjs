@@ -21,6 +21,7 @@ const officialNews = [
     content:
       'A CeasaMinas assinou, em Contagem, um Termo de Compromisso de Conduta com o Ministério Público de Minas Gerais para disciplinar a prorrogação dos contratos de concessão de uso em seus seis entrepostos.\n\nSegundo a publicação oficial, contratos elegíveis poderão ser prorrogados uma vez por até 25 anos, desde que atendam aos requisitos cadastrais, financeiros, jurídicos e contratuais. O acordo busca preservar a continuidade do abastecimento e ampliar a segurança jurídica para concessionários e produtores.\n\nConsulte a íntegra e os critérios no site oficial da CeasaMinas.',
     sourceUrl: 'https://www.ceasaminas.com.br/noticiageral.asp?codigonoticia=5583',
+    imageUrl: '/images/news/acordo-mpmg.svg',
     publishedAt: new Date('2026-07-16T12:00:00.000Z'),
   },
   {
@@ -32,6 +33,7 @@ const officialNews = [
     content:
       'A CeasaMinas participou do 41º Congresso Mineiro de Municípios, no Expominas, para apresentar sua atuação no abastecimento e no desenvolvimento da agricultura estadual.\n\nDurante o evento foi prevista a assinatura de cooperação técnica com a Associação Mineira de Municípios. A iniciativa contempla capacitação de servidores municipais envolvidos na elaboração de editais, no recebimento e na distribuição de produtos hortigranjeiros.\n\nMais informações estão disponíveis na publicação oficial.',
     sourceUrl: 'https://www.ceasaminas.com.br/noticiageral.asp?codigonoticia=5575',
+    imageUrl: '/images/news/congresso-municipios.svg',
     publishedAt: new Date('2026-05-04T12:00:00.000Z'),
   },
   {
@@ -43,6 +45,7 @@ const officialNews = [
     content:
       'O Prodal Banco de Alimentos apresentou razões para concessionários e produtores destinarem excedentes próprios para consumo às instituições atendidas pelo programa.\n\nA operação inclui critérios de cadastro das entidades beneficiadas, avaliação dos alimentos recebidos, coleta das doações e publicação periódica de resultados. Além do impacto social, a doação reduz desperdícios e a destinação inadequada de resíduos.\n\nOs contatos e detalhes atualizados estão na notícia oficial da CeasaMinas.',
     sourceUrl: 'https://www.ceasaminas.com.br/noticiageral.asp?codigonoticia=5561',
+    imageUrl: '/images/news/prodal-doadores.svg',
     publishedAt: new Date('2026-01-13T12:00:00.000Z'),
   },
   {
@@ -54,6 +57,7 @@ const officialNews = [
     content:
       'O Prodal Banco de Alimentos passou a integrar a Rede Brasileira de Bancos de Alimentos, que reúne organizações comprometidas com o combate à fome e ao desperdício.\n\nA participação fortalece o acesso a treinamentos, manuais e recursos técnicos, além de aproximar o programa de iniciativas nacionais e regionais de doação. O reconhecimento reforça o trabalho realizado com concessionários, produtores e instituições beneficiadas.\n\nLeia os detalhes na fonte oficial da CeasaMinas.',
     sourceUrl: 'https://www.ceasaminas.com.br/noticiageral.asp?codigonoticia=5560',
+    imageUrl: '/images/news/prodal-rede.svg',
     publishedAt: new Date('2025-12-17T12:00:00.000Z'),
   },
   {
@@ -65,6 +69,7 @@ const officialNews = [
     content:
       'A Comunidade Quilombola dos Arturos iniciou sua participação comercial no Varejão do entreposto de Contagem, ampliando o acesso do público à produção agrícola, às quitandas e ao artesanato da comunidade.\n\nA ação integra o projeto Caminhos da Inclusão, previsto no planejamento estratégico da CeasaMinas. O projeto facilita o acesso de quilombos, assentamentos, agricultura urbana e periurbana e povos originários aos espaços de comercialização.\n\nA matéria completa pode ser consultada no site oficial.',
     sourceUrl: 'https://www.ceasaminas.com.br/noticiageral.asp?codigonoticia=5543',
+    imageUrl: '/images/news/arturos.svg',
     publishedAt: new Date('2025-10-15T12:00:00.000Z'),
   },
 ].map((article) => ({

@@ -25,6 +25,7 @@
     "admin:reset-password": "pnpm --filter @ceasaminas/api exec node scripts/reset-admin-password.mjs",
     "test:admin-scripts": "pnpm --filter @ceasaminas/api test:admin-scripts",
     "news:sync-official": "pnpm --filter @ceasaminas/api exec node scripts/sync-official-news.mjs",
+    "news:update-images": "pnpm --filter @ceasaminas/api exec node scripts/update-official-news-images.mjs",
     "infra:up": "docker compose up -d postgres redis mailpit minio",
     "infra:down": "docker compose down",
     "infra:logs": "docker compose logs -f --tail=100",
