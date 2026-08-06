@@ -167,7 +167,7 @@ export default function UsersPage() {
               Senha temporária
               <input
                 required
-                minLength={10}
+                minLength={12}
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

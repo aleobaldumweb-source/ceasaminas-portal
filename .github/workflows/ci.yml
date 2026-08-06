@@ -27,6 +27,7 @@ jobs:
       NODE_ENV: test
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ceasaminas
       REDIS_URL: redis://localhost:6379
+      RUN_DATABASE_TESTS: true
 
     services:
       postgres:
@@ -55,7 +56,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Enable Corepack
         run: corepack enable
@@ -64,7 +65,7 @@ jobs:
         run: corepack prepare pnpm@11.13.1 --activate
 
       - name: Configure pnpm cache
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -81,6 +82,9 @@ jobs:
       - name: Generate Prisma client
         run: pnpm db:generate
 
+      - name: Apply database migrations
+        run: pnpm db:migrate:deploy
+
       - name: Check formatting
         run: pnpm format:check
 
@@ -89,6 +93,9 @@ jobs:
 
       - name: Typecheck
         run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
 
       - name: Build
         run: pnpm build

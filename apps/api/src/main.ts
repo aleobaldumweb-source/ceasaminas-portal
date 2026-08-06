@@ -7,28 +7,40 @@ import { config } from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { resolve } from 'node:path';
+import { prepareLocalStorage } from './storage/local-storage.js';
+import {
+  apiPort,
+  apiPrefix,
+  apiPublicUrl,
+  corsOrigins,
+  swaggerEnabled,
+} from './config/runtime-config.js';
 
 config({ path: resolve(process.cwd(), '../../.env') });
 
 async function bootstrap() {
   const { AppModule } = await import('./app.module.js');
+  await prepareLocalStorage();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableShutdownHooks();
 
   app.useStaticAssets(resolve(process.cwd(), 'uploads'), { prefix: '/uploads/' });
-  app.setGlobalPrefix('api/v1');
+  const prefix = apiPrefix();
+  apiPublicUrl();
+  app.setGlobalPrefix(prefix);
   app.set('trust proxy', 1);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(cookieParser());
 
   app.enableCors({
-    origin: [process.env.ADMIN_ORIGIN ?? 'http://localhost:3001', 'http://localhost:3000'],
+    origin: corsOrigins(),
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-bootstrap-token'],
   });
 
   app.use(
-    '/api/v1/auth/login',
+    `/${prefix}/auth/login`,
     rateLimit({
       windowMs: 15 * 60 * 1000,
       limit: 10,
@@ -46,15 +58,17 @@ async function bootstrap() {
     }),
   );
 
-  const configSwagger = new DocumentBuilder()
-    .setTitle('API Ceasaminas Digital')
-    .setDescription('API do portal, administração e integrações da Ceasaminas.')
-    .setVersion('0.3.0')
-    .addBearerAuth()
-    .build();
+  if (swaggerEnabled()) {
+    const configSwagger = new DocumentBuilder()
+      .setTitle('API Ceasaminas Digital')
+      .setDescription('API do portal, administração e integrações da Ceasaminas.')
+      .setVersion('0.3.0')
+      .addBearerAuth()
+      .build();
 
-  SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, configSwagger));
-  await app.listen(Number(process.env.API_PORT ?? 3333), '0.0.0.0');
+    SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, configSwagger));
+  }
+  await app.listen(apiPort(), '0.0.0.0');
 }
 
 void bootstrap();

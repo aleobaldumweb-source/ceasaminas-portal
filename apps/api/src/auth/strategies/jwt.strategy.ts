@@ -21,23 +21,30 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    const user = await prisma.user.findFirst({
+    const session = await prisma.authSession.findFirst({
       where: {
-        id: payload.sub,
-        status: 'ACTIVE',
+        id: payload.sessionId,
+        userId: payload.sub,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+        user: { status: 'ACTIVE' },
       },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+          },
+        },
       },
     });
 
-    if (!user) {
-      throw new UnauthorizedException('Usuário inválido ou inativo.');
+    if (!session) {
+      throw new UnauthorizedException('Sessão inválida, expirada ou revogada.');
     }
 
-    return user;
+    return { ...session.user, sessionId: session.id };
   }
 }

@@ -28,38 +28,44 @@ export class AuthService {
       throw new ForbiddenException('Token de instalação inválido.');
     }
 
-    const users = await prisma.user.count();
-    if (users > 0) {
-      throw new ConflictException('O administrador inicial já foi configurado.');
-    }
+    const passwordHash = await hash(dto.password, 12);
 
-    const user = await prisma.user.create({
-      data: {
-        name: dto.name.trim(),
-        email: dto.email.trim().toLowerCase(),
-        passwordHash: await hash(dto.password, 12),
-        role: Role.ADMIN,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-      },
+    return prisma.$transaction(async (transaction) => {
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('ceasaminas-bootstrap-admin'))`;
+
+      const users = await transaction.user.count();
+      if (users > 0) {
+        throw new ConflictException('O administrador inicial já foi configurado.');
+      }
+
+      const user = await transaction.user.create({
+        data: {
+          name: dto.name.trim(),
+          email: dto.email.trim().toLowerCase(),
+          passwordHash,
+          role: Role.ADMIN,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      });
+
+      await transaction.auditLog.create({
+        data: {
+          userId: user.id,
+          action: 'AUTH_BOOTSTRAP_ADMIN',
+          resource: 'USER',
+          resourceId: user.id,
+          ipAddress: meta.ipAddress,
+          userAgent: meta.userAgent,
+        },
+      });
+
+      return { user };
     });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: user.id,
-        action: 'AUTH_BOOTSTRAP_ADMIN',
-        resource: 'USER',
-        resourceId: user.id,
-        ipAddress: meta.ipAddress,
-        userAgent: meta.userAgent,
-      },
-    });
-
-    return { user };
   }
 
   async login(dto: LoginDto, meta: RequestMeta) {
@@ -168,8 +174,14 @@ export class AuthService {
       sessionId: session.id,
     });
 
-    await prisma.authSession.update({
-      where: { id: session.id },
+    const rotation = await prisma.authSession.updateMany({
+      where: {
+        id: session.id,
+        userId: session.user.id,
+        refreshTokenHash: this.hashToken(refreshToken),
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
       data: {
         refreshTokenHash: this.hashToken(nextRefreshToken),
         userAgent: meta.userAgent ?? session.userAgent,
@@ -177,6 +189,10 @@ export class AuthService {
         expiresAt: this.refreshExpirationDate(),
       },
     });
+
+    if (rotation.count !== 1) {
+      throw new UnauthorizedException('Sessão expirada ou revogada.');
+    }
 
     const user: AuthUser = {
       id: session.user.id,
@@ -192,23 +208,18 @@ export class AuthService {
     };
   }
 
-  async logout(userId: string, refreshToken: string | undefined, meta: RequestMeta) {
-    if (refreshToken) {
-      await prisma.authSession.updateMany({
-        where: {
-          userId,
-          refreshTokenHash: this.hashToken(refreshToken),
-          revokedAt: null,
-        },
-        data: { revokedAt: new Date() },
-      });
-    }
+  async logout(userId: string, sessionId: string, meta: RequestMeta) {
+    await prisma.authSession.updateMany({
+      where: { id: sessionId, userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
 
     await prisma.auditLog.create({
       data: {
         userId,
         action: 'AUTH_LOGOUT',
         resource: 'SESSION',
+        resourceId: sessionId,
         ipAddress: meta.ipAddress,
         userAgent: meta.userAgent,
       },
@@ -237,6 +248,7 @@ export class AuthService {
     return this.jwtService.signAsync(payload, {
       secret: this.refreshSecret(),
       expiresIn: `${this.refreshDays()}d`,
+      jwtid: randomUUID(),
     });
   }
 

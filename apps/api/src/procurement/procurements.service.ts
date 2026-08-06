@@ -6,6 +6,9 @@ import type { UpdateProcurementDto } from './dto/update-procurement.dto.js';
 
 const includeDocuments = { documents: { orderBy: { createdAt: 'desc' as const } } };
 
+const isUniqueConstraintError = (error: unknown) =>
+  Boolean(error && typeof error === 'object' && 'code' in error && error.code === 'P2002');
+
 @Injectable()
 export class ProcurementsService {
   findPublished(query?: string, status?: string) {
@@ -46,22 +49,29 @@ export class ProcurementsService {
     const number = input.number.trim();
     if (await prisma.procurement.findUnique({ where: { number }, select: { id: true } }))
       throw new ConflictException('Já existe uma licitação com esse número.');
-    return prisma.$transaction(async (tx) => {
-      const item = await tx.procurement.create({
-        data: this.toData(input, number),
-        include: includeDocuments,
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const item = await tx.procurement.create({
+          data: this.toData(input, number),
+          include: includeDocuments,
+        });
+        await tx.auditLog.create({
+          data: {
+            userId: actor.id,
+            action: 'PROCUREMENT_CREATED',
+            resource: 'PROCUREMENT',
+            resourceId: item.id,
+            metadata: { number: item.number, status: item.status },
+          },
+        });
+        return item;
       });
-      await tx.auditLog.create({
-        data: {
-          userId: actor.id,
-          action: 'PROCUREMENT_CREATED',
-          resource: 'PROCUREMENT',
-          resourceId: item.id,
-          metadata: { number: item.number, status: item.status },
-        },
-      });
-      return item;
-    });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new ConflictException('Já existe uma licitação com esse número.');
+      }
+      throw error;
+    }
   }
 
   async update(id: string, input: UpdateProcurementDto, actor: AuthUser) {
@@ -75,27 +85,37 @@ export class ProcurementsService {
       }))
     )
       throw new ConflictException('Já existe uma licitação com esse número.');
-    return prisma.$transaction(async (tx) => {
-      const item = await tx.procurement.update({
-        where: { id },
-        data: this.toData(input, input.number?.trim()),
-        include: includeDocuments,
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const item = await tx.procurement.update({
+          where: { id },
+          data: this.toData(input, input.number?.trim()),
+          include: includeDocuments,
+        });
+        await tx.auditLog.create({
+          data: {
+            userId: actor.id,
+            action: 'PROCUREMENT_UPDATED',
+            resource: 'PROCUREMENT',
+            resourceId: id,
+            metadata: { number: item.number, status: item.status },
+          },
+        });
+        return item;
       });
-      await tx.auditLog.create({
-        data: {
-          userId: actor.id,
-          action: 'PROCUREMENT_UPDATED',
-          resource: 'PROCUREMENT',
-          resourceId: id,
-          metadata: { number: item.number, status: item.status },
-        },
-      });
-      return item;
-    });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new ConflictException('Já existe uma licitação com esse número.');
+      }
+      throw error;
+    }
   }
 
   async remove(id: string, actor: AuthUser) {
-    const item = await prisma.procurement.findUnique({ where: { id }, select: { number: true } });
+    const item = await prisma.procurement.findUnique({
+      where: { id },
+      select: { number: true, documents: { select: { fileUrl: true } } },
+    });
     if (!item) throw new NotFoundException('Licitação não encontrada.');
     await prisma.$transaction(async (tx) => {
       await tx.procurement.delete({ where: { id } });
@@ -109,6 +129,7 @@ export class ProcurementsService {
         },
       });
     });
+    return item;
   }
 
   async addDocument(

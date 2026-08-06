@@ -10,7 +10,7 @@ export class CreateUserDto {
   email!: string;
 
   @IsString()
-  @MinLength(10)
+  @MinLength(12)
   password!: string;
 
   @IsEnum(Role)
