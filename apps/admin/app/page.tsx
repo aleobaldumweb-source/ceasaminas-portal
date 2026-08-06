@@ -28,7 +28,8 @@ type News = {
   createdAt: string;
   updatedAt: string;
 };
-type FormState = Omit<News, 'id' | 'createdAt' | 'updatedAt' | 'imageUrl' | 'sourceUrl'>;
+type FormState = Omit<News, 'id' | 'createdAt' | 'updatedAt' | 'imageUrl' | 'sourceUrl'> &
+  Record<'sourceUrl', string>;
 
 const emptyForm: FormState = {
   title: '',
@@ -38,6 +39,7 @@ const emptyForm: FormState = {
   category: 'Institucional',
   status: 'DRAFT',
   publishedAt: null,
+  sourceUrl: '',
 };
 
 const labels: Record<Status, string> = {
@@ -148,6 +150,7 @@ export default function AdminHome() {
       category: item.category,
       status: item.status,
       publishedAt: item.publishedAt,
+      sourceUrl: item.sourceUrl ?? '',
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -232,6 +235,7 @@ export default function AdminHome() {
     const payload = {
       ...form,
       slug: slugify(form.slug || form.title),
+      sourceUrl: form.sourceUrl.trim(),
       publishedAt:
         form.status === 'PUBLISHED' ? (form.publishedAt ?? new Date().toISOString()) : null,
     };
@@ -419,6 +423,21 @@ export default function AdminHome() {
                 </select>
               </label>
             </div>
+
+            <label>
+              Fonte oficial (URL)
+              <input
+                type="url"
+                placeholder="https://www.ceasaminas.com.br/..."
+                value={form.sourceUrl}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    sourceUrl: event.target.value,
+                  }))
+                }
+              />
+            </label>
 
             <label>
               Resumo

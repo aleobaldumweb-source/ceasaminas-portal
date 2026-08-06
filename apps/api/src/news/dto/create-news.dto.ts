@@ -6,6 +6,7 @@ import {
   IsUrl,
   Length,
   MaxLength,
+  ValidateIf,
 } from 'class-validator';
 
 export enum NewsPublicationStatus {
@@ -42,7 +43,7 @@ export class CreateNewsDto {
   @MaxLength(2048)
   imageUrl?: string;
 
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined && value !== '')
   @IsUrl({ require_protocol: true })
   @MaxLength(2048)
   sourceUrl?: string;
