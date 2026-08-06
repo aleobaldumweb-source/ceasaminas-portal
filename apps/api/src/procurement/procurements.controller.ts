@@ -17,7 +17,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { randomUUID } from 'node:crypto';
-import { mkdir, rename, unlink } from 'node:fs/promises';
+import { rename, unlink } from 'node:fs/promises';
 import { extname, isAbsolute, relative, resolve } from 'node:path';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
@@ -25,13 +25,15 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { Role, type AuthUser } from '../auth/auth.types.js';
 import { apiPublicUrl } from '../config/runtime-config.js';
+import {
+  PROCUREMENT_UPLOAD_DIRECTORY,
+  TEMP_UPLOAD_DIRECTORY,
+  UPLOAD_ROOT,
+} from '../storage/local-storage.js';
 import { CreateProcurementDto } from './dto/create-procurement.dto.js';
 import { UpdateProcurementDto } from './dto/update-procurement.dto.js';
 import { ProcurementsService } from './procurements.service.js';
 
-const UPLOAD_DIRECTORY = resolve(process.cwd(), 'uploads', 'procurements');
-const UPLOAD_ROOT = resolve(process.cwd(), 'uploads');
-const TEMP_DIRECTORY = resolve(process.cwd(), 'uploads', 'temp');
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
 type Upload = { path: string; originalname: string; mimetype: string; size: number };
 
@@ -95,7 +97,7 @@ export class ProcurementsController {
   @Roles(Role.ADMIN, Role.EDITOR)
   @UseInterceptors(
     FileInterceptor('file', {
-      dest: TEMP_DIRECTORY,
+      dest: TEMP_UPLOAD_DIRECTORY,
       limits: { fileSize: MAX_FILE_SIZE, files: 1 },
     }),
   )
@@ -125,9 +127,8 @@ export class ProcurementsController {
       await unlink(file.path).catch(() => undefined);
       throw new BadRequestException('Formato inválido. Envie PDF, DOC, DOCX ou XLSX.');
     }
-    await mkdir(UPLOAD_DIRECTORY, { recursive: true });
     const fileName = `procurement-${id}-${Date.now()}-${randomUUID()}${extname(file.originalname).toLowerCase()}`;
-    const finalPath = resolve(UPLOAD_DIRECTORY, fileName);
+    const finalPath = resolve(PROCUREMENT_UPLOAD_DIRECTORY, fileName);
     await rename(file.path, finalPath);
     try {
       return await this.service.addDocument(
@@ -161,7 +162,7 @@ export class ProcurementsController {
     if (!path) return;
 
     const target = resolve(UPLOAD_ROOT, path);
-    const pathInsideProcurements = relative(UPLOAD_DIRECTORY, target);
+    const pathInsideProcurements = relative(PROCUREMENT_UPLOAD_DIRECTORY, target);
     if (pathInsideProcurements.startsWith('..') || isAbsolute(pathInsideProcurements)) return;
 
     await unlink(target).catch(() => undefined);

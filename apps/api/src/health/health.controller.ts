@@ -1,11 +1,7 @@
 import { prisma } from '@ceasaminas/database';
 import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { constants } from 'node:fs';
-import { access } from 'node:fs/promises';
-import { resolve } from 'node:path';
-
-const UPLOAD_DIRECTORY = resolve(process.cwd(), 'uploads');
+import { checkLocalStorage } from '../storage/local-storage.js';
 
 @ApiTags('health')
 @Controller('health')
@@ -44,6 +40,6 @@ export class HealthController {
   }
 
   private async checkUploads() {
-    await access(UPLOAD_DIRECTORY, constants.R_OK | constants.W_OK);
+    await checkLocalStorage();
   }
 }

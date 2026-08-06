@@ -7,6 +7,7 @@ import { config } from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { resolve } from 'node:path';
+import { prepareLocalStorage } from './storage/local-storage.js';
 import {
   apiPort,
   apiPrefix,
@@ -19,6 +20,7 @@ config({ path: resolve(process.cwd(), '../../.env') });
 
 async function bootstrap() {
   const { AppModule } = await import('./app.module.js');
+  await prepareLocalStorage();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableShutdownHooks();
 

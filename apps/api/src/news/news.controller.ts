@@ -16,19 +16,18 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { randomUUID } from 'node:crypto';
-import { mkdir, rename, unlink } from 'node:fs/promises';
+import { rename, unlink } from 'node:fs/promises';
 import { extname, resolve } from 'node:path';
 import { Role } from '../auth/auth.types.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { apiPublicUrl } from '../config/runtime-config.js';
+import { NEWS_UPLOAD_DIRECTORY, TEMP_UPLOAD_DIRECTORY } from '../storage/local-storage.js';
 import { CreateNewsDto } from './dto/create-news.dto.js';
 import { UpdateNewsDto } from './dto/update-news.dto.js';
 import { NewsService } from './news.service.js';
 
-const UPLOAD_DIRECTORY = resolve(process.cwd(), 'uploads', 'news');
-const TEMP_DIRECTORY = resolve(process.cwd(), 'uploads', 'temp');
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 type UploadedNewsFile = {
@@ -87,7 +86,7 @@ export class NewsController {
   })
   @UseInterceptors(
     FileInterceptor('file', {
-      dest: TEMP_DIRECTORY,
+      dest: TEMP_UPLOAD_DIRECTORY,
       limits: { fileSize: MAX_IMAGE_SIZE, files: 1 },
     }),
   )
@@ -119,10 +118,9 @@ export class NewsController {
       throw new BadRequestException('Formato inválido. Envie uma imagem JPG, PNG ou WebP.');
     }
 
-    await mkdir(UPLOAD_DIRECTORY, { recursive: true });
     const safeExtension = extension === '.jpeg' ? '.jpg' : extension;
     const fileName = `news-${id}-${Date.now()}-${randomUUID()}${safeExtension}`;
-    const finalPath = resolve(UPLOAD_DIRECTORY, fileName);
+    const finalPath = resolve(NEWS_UPLOAD_DIRECTORY, fileName);
     await rename(file.path, finalPath);
 
     try {
