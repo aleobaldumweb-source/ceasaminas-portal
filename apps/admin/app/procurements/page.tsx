@@ -1,5 +1,6 @@
 'use client';
 
+import { AdminSidebar } from '../../components/admin-sidebar';
 import { useAuth } from '../../components/auth-provider';
 import { ProcurementFilters } from './components/procurement-filters';
 import { ProcurementForm } from './components/procurement-form';
@@ -16,21 +17,7 @@ export default function ProcurementsPage() {
 
   return (
     <div className="layout">
-      <aside>
-        <div className="brand">
-          <b>CEASAMINAS</b>
-          <span>Administração</span>
-        </div>
-        <nav>
-          <a href="/">Notícias</a>
-          <a href="/market">Mercado</a>
-          <a className="active" href="/procurements">
-            Licitações
-          </a>
-          {isAdmin && <a href="/users">Usuários</a>}
-        </nav>
-        <footer>● Ambiente administrativo</footer>
-      </aside>
+      <AdminSidebar active="procurements" role={user?.role} />
 
       <main className="procurements-page">
         <header>

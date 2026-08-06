@@ -9,6 +9,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { AdminSidebar } from '../components/admin-sidebar';
 import { useAuth } from '../components/auth-provider';
 import { authenticatedRequest as request } from '../lib/auth-client';
 
@@ -286,27 +287,7 @@ export default function AdminHome() {
 
   return (
     <div className="layout">
-      <aside>
-        <div className="brand">
-          <b>CEASAMINAS</b>
-          <span>Administração</span>
-        </div>
-        <nav>
-          <a className="active" href="#dashboard">
-            Visão geral
-          </a>
-          <a href="#editor">Notícias</a>
-          <span>
-            Licitações <small>Em breve</small>
-          </span>
-          <a href="/market">Mercado</a>
-          <a href="/procurements">Licitações</a>
-          <span>
-            Transparência <small>Em breve</small>
-          </span>
-        </nav>
-        <footer>● Ambiente local</footer>
-      </aside>
+      <AdminSidebar active="overview" role={user?.role} />
 
       <main>
         <header>

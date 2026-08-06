@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { AdminSidebar } from '../../components/admin-sidebar';
 import { useAuth } from '../../components/auth-provider';
 import { authenticatedRequest } from '../../lib/auth-client';
 import type { UserRole } from '../../lib/auth-types';
@@ -107,21 +108,7 @@ export default function UsersPage() {
 
   return (
     <div className="layout">
-      <aside>
-        <div className="brand">
-          <b>CEASAMINAS</b>
-          <span>Administração</span>
-        </div>
-        <nav>
-          <a href="/">Notícias</a>
-          <a href="/market">Mercado</a>
-          <a href="/procurements">Licitações</a>
-          <a className="active" href="/users">
-            Usuários
-          </a>
-        </nav>
-        <footer>● Ambiente administrativo</footer>
-      </aside>
+      <AdminSidebar active="users" role={user.role} />
       <main>
         <header>
           <div>
