@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { UserRole } from '../lib/auth-types';
 
 type AdminSection = 'overview' | 'market' | 'procurements' | 'users';
@@ -15,22 +16,38 @@ export function AdminSidebar({ active, role }: AdminSidebarProps) {
         <span>Administração</span>
       </div>
       <nav aria-label="Navegação administrativa">
-        <a className={active === 'overview' ? 'active' : undefined} href="/#dashboard">
+        <Link
+          aria-current={active === 'overview' ? 'page' : undefined}
+          className={active === 'overview' ? 'active' : undefined}
+          href="/#dashboard"
+        >
           Visão geral
-        </a>
-        <a href="/#editor">Notícias</a>
-        <a className={active === 'market' ? 'active' : undefined} href="/market">
+        </Link>
+        <Link href="/#editor">Notícias</Link>
+        <Link
+          aria-current={active === 'market' ? 'page' : undefined}
+          className={active === 'market' ? 'active' : undefined}
+          href="/market"
+        >
           Mercado
-        </a>
-        <a className={active === 'procurements' ? 'active' : undefined} href="/procurements">
+        </Link>
+        <Link
+          aria-current={active === 'procurements' ? 'page' : undefined}
+          className={active === 'procurements' ? 'active' : undefined}
+          href="/procurements"
+        >
           Licitações
-        </a>
+        </Link>
         {role === 'ADMIN' && (
-          <a className={active === 'users' ? 'active' : undefined} href="/users">
+          <Link
+            aria-current={active === 'users' ? 'page' : undefined}
+            className={active === 'users' ? 'active' : undefined}
+            href="/users"
+          >
             Usuários
-          </a>
+          </Link>
         )}
-        <span>
+        <span aria-disabled="true">
           Transparência <small>Em breve</small>
         </span>
       </nav>
