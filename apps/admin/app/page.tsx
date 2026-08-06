@@ -68,6 +68,18 @@ function formatDate(value: string | null) {
     : '—';
 }
 
+function resolveNewsImageUrl(value: string | null) {
+  if (!value) return null;
+
+  if (/^(?:https?:|blob:|data:)/i.test(value)) return value;
+
+  const origin = value.startsWith('/uploads/')
+    ? (process.env.NEXT_PUBLIC_API_ORIGIN ?? 'http://localhost:3333')
+    : (process.env.NEXT_PUBLIC_PORTAL_ORIGIN ?? 'http://localhost:3000');
+
+  return `${origin.replace(/\/+$/, '')}/${value.replace(/^\/+/, '')}`;
+}
+
 function normalize(raw: Record<string, unknown>): News {
   return {
     id: String(raw.id),
@@ -133,6 +145,7 @@ export default function AdminHome() {
     [items],
   );
 
+  const previewImageUrl = resolveNewsImageUrl(localPreview ?? currentImageUrl);
   const filtered = items.filter((item) =>
     `${item.title} ${item.slug} ${item.category}`.toLowerCase().includes(query.toLowerCase()),
   );
@@ -497,9 +510,9 @@ export default function AdminHome() {
                   outline: 'none',
                 }}
               >
-                {(localPreview ?? currentImageUrl) ? (
+                {previewImageUrl ? (
                   <img
-                    src={localPreview ?? currentImageUrl ?? ''}
+                    src={previewImageUrl}
                     alt="Pré-visualização"
                     style={{
                       width: '100%',
