@@ -1,0 +1,14 @@
+.git
+.github
+.husky
+.next
+.turbo
+**/.next
+**/dist
+node_modules
+.pnpm-store
+backup-*
+*.log
+**/.env
+**/.env.*
+apps/api/uploads

@@ -1,0 +1,14 @@
+{$PORTAL_DOMAIN} {
+  encode zstd gzip
+  reverse_proxy portal:3000
+}
+
+{$ADMIN_DOMAIN} {
+  encode zstd gzip
+  reverse_proxy admin:3001
+}
+
+{$API_DOMAIN} {
+  encode zstd gzip
+  reverse_proxy api:3333
+}
