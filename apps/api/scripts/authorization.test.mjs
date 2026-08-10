@@ -14,11 +14,13 @@ const [
   { MarketImportController },
   { NewsController },
   { ProcurementsController },
+  { TransparencyController },
   { UsersController },
 ] = await Promise.all([
   import('../dist/market/import/market-import.controller.js'),
   import('../dist/news/news.controller.js'),
   import('../dist/procurement/procurements.controller.js'),
+  import('../dist/transparency/transparency.controller.js'),
   import('../dist/users/users.controller.js'),
 ]);
 
@@ -102,5 +104,14 @@ describe('políticas dos controllers administrativos', () => {
     assertPolicy(ProcurementsController, 'upload', editors);
     assertPolicy(ProcurementsController, 'removeDocument', editors);
     assertPolicy(ProcurementsController, 'remove', [Role.ADMIN]);
+  });
+
+  it('permite leitura administrativa e restringe a gestão de transparência', () => {
+    const editors = [Role.ADMIN, Role.EDITOR];
+
+    assertPolicy(TransparencyController, 'findAdmin', [Role.ADMIN, Role.EDITOR, Role.AUDITOR]);
+    assertPolicy(TransparencyController, 'create', editors);
+    assertPolicy(TransparencyController, 'update', editors);
+    assertPolicy(TransparencyController, 'remove', [Role.ADMIN]);
   });
 });

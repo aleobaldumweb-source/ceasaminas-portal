@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { UserRole } from '../lib/auth-types';
 
-type AdminSection = 'overview' | 'market' | 'procurements' | 'users';
+type AdminSection = 'overview' | 'market' | 'procurements' | 'users' | 'transparency';
 
 type AdminSidebarProps = {
   active: AdminSection;
@@ -47,9 +47,13 @@ export function AdminSidebar({ active, role }: AdminSidebarProps) {
             Usuários
           </Link>
         )}
-        <span aria-disabled="true">
-          Transparência <small>Em breve</small>
-        </span>
+        <Link
+          aria-current={active === 'transparency' ? 'page' : undefined}
+          className={active === 'transparency' ? 'active' : undefined}
+          href="/transparency"
+        >
+          Transparência
+        </Link>
       </nav>
       <footer>● Ambiente administrativo</footer>
     </aside>
