@@ -72,12 +72,19 @@ pnpm build
 O workflow de CI executa essa sequência em pushes e pull requests direcionados à
 `main`.
 
+## Produção
+
+As imagens Docker, o proxy HTTPS, os serviços persistentes e o fluxo de migração estão definidos em
+`deploy/compose.production.yml`. Consulte `docs/PRODUCTION-RUNBOOK.md` antes de configurar ou
+atualizar um ambiente. O arquivo `deploy/.env.production.example` documenta as variáveis exigidas;
+segredos reais nunca devem ser versionados.
+
 ## Estado e limitações
 
-O repositório contém um MVP funcional. Build e validações estáticas estão automatizados,
-mas a cobertura de testes ainda é parcial e deve crescer com testes de integração e E2E
-dos fluxos críticos. Itens planejados devem ser registrados como issues; a ausência de
-issues abertas não comprova prontidão para produção.
+O repositório contém um MVP funcional com testes de API e persistência. Ainda faltam recuperação de
+senha por e-mail, testes E2E no navegador e homologação da infraestrutura, acessibilidade,
+desempenho, restauração e monitoramento no ambiente real. A existência dos artefatos de deploy não
+comprova prontidão operacional sem essa homologação.
 
 As regras de contribuição e entrega estão em `AGENTS.md` e
 `docs/DELIVERY-PLAYBOOK.md`.
