@@ -30,7 +30,7 @@ after(async () => {
 });
 
 describe('persistência de autenticação', () => {
-  databaseTest('rotaciona o refresh token e revoga a sessão no logout', async () => {
+  databaseTest('rotaciona tokens e permite gerenciar as sessões do usuário', async () => {
     const suffix = randomUUID();
     const password = `senha-segura-${suffix}`;
     const user = await prisma.user.create({
@@ -48,6 +48,20 @@ describe('persistência de autenticação', () => {
     const meta = { ipAddress: '127.0.0.1', userAgent: 'integration-test' };
     const login = await service.login({ email: user.email, password }, meta);
     const payload = jwt.decode(login.accessToken);
+    const secondLogin = await service.login(
+      { email: user.email, password },
+      { ipAddress: '127.0.0.2', userAgent: 'second-device' },
+    );
+    const secondPayload = jwt.decode(secondLogin.accessToken);
+
+    const sessions = await service.listSessions(user.id, payload.sessionId);
+    assert.equal(sessions.length, 2);
+    assert.equal(sessions.find(({ id }) => id === payload.sessionId)?.current, true);
+    assert.equal(sessions.find(({ id }) => id === secondPayload.sessionId)?.current, false);
+
+    const revoked = await service.revokeOtherSessions(user.id, payload.sessionId, meta);
+    assert.equal(revoked.count, 1);
+    await assert.rejects(() => service.refresh(secondLogin.refreshToken, meta), /revogada/);
 
     const rotated = await service.refresh(login.refreshToken, meta);
     assert.notEqual(rotated.refreshToken, login.refreshToken);
@@ -66,7 +80,7 @@ describe('persistência de autenticação', () => {
     });
     assert.deepEqual(
       actions.map(({ action }) => action),
-      ['AUTH_LOGIN', 'AUTH_LOGOUT'],
+      ['AUTH_LOGIN', 'AUTH_LOGIN', 'AUTH_OTHER_SESSIONS_REVOKED', 'AUTH_LOGOUT'],
     );
   });
 });

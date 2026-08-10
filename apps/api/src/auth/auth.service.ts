@@ -228,6 +228,72 @@ export class AuthService {
     return { success: true };
   }
 
+  async listSessions(userId: string, currentSessionId: string) {
+    const sessions = await prisma.authSession.findMany({
+      where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        userAgent: true,
+        ipAddress: true,
+        createdAt: true,
+        updatedAt: true,
+        expiresAt: true,
+      },
+    });
+
+    return sessions.map((session) => ({
+      ...session,
+      current: session.id === currentSessionId,
+    }));
+  }
+
+  async revokeSession(
+    userId: string,
+    sessionId: string,
+    actorSessionId: string,
+    meta: RequestMeta,
+  ) {
+    const result = await prisma.authSession.updateMany({
+      where: { id: sessionId, userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    if (result.count !== 1)
+      throw new UnauthorizedException('Sessão não encontrada ou já revogada.');
+
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: 'AUTH_SESSION_REVOKED',
+        resource: 'SESSION',
+        resourceId: sessionId,
+        metadata: { self: sessionId === actorSessionId },
+        ipAddress: meta.ipAddress,
+        userAgent: meta.userAgent,
+      },
+    });
+    return { success: true, current: sessionId === actorSessionId };
+  }
+
+  async revokeOtherSessions(userId: string, currentSessionId: string, meta: RequestMeta) {
+    const result = await prisma.authSession.updateMany({
+      where: { userId, id: { not: currentSessionId }, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: 'AUTH_OTHER_SESSIONS_REVOKED',
+        resource: 'SESSION',
+        resourceId: currentSessionId,
+        metadata: { count: result.count },
+        ipAddress: meta.ipAddress,
+        userAgent: meta.userAgent,
+      },
+    });
+    return { success: true, count: result.count };
+  }
+
   private async signAccessToken(user: AuthUser, sessionId: string) {
     return this.jwtService.signAsync(
       {

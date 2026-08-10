@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   HttpCode,
+  Param,
   Post,
   Req,
   Res,
@@ -82,12 +84,7 @@ export class AuthController {
   ) {
     await this.authService.logout(user.id, user.sessionId, this.meta(request));
 
-    response.clearCookie(REFRESH_COOKIE, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      path: authCookiePath(),
-    });
+    this.clearRefreshCookie(response);
 
     return { success: true };
   }
@@ -101,6 +98,39 @@ export class AuthController {
     };
   }
 
+  @Get('sessions')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  sessions(@CurrentUser() user: AuthenticatedUser) {
+    return this.authService.listSessions(user.id, user.sessionId);
+  }
+
+  @Delete('sessions/others')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  revokeOtherSessions(@CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
+    return this.authService.revokeOtherSessions(user.id, user.sessionId, this.meta(request));
+  }
+
+  @Delete('sessions/:sessionId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async revokeSession(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('sessionId') sessionId: string,
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = await this.authService.revokeSession(
+      user.id,
+      sessionId,
+      user.sessionId,
+      this.meta(request),
+    );
+    if (result.current) this.clearRefreshCookie(response);
+    return result;
+  }
+
   private setRefreshCookie(response: Response, token: string) {
     response.cookie(REFRESH_COOKIE, token, {
       httpOnly: true,
@@ -108,6 +138,15 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'production',
       path: authCookiePath(),
       maxAge: Number(process.env.JWT_REFRESH_TTL_DAYS ?? 7) * 24 * 60 * 60 * 1000,
+    });
+  }
+
+  private clearRefreshCookie(response: Response) {
+    response.clearCookie(REFRESH_COOKIE, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: authCookiePath(),
     });
   }
 
