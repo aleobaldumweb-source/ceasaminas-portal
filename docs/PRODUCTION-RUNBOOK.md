@@ -47,6 +47,20 @@ Agende `backup-production.ps1` diariamente e copie os artefatos para outro local
 30 dias. Teste a restauração em ambiente isolado pelo menos uma vez por trimestre. Nunca restaure
 sobre produção sem janela aprovada e backup imediatamente anterior.
 
+O script de restauração exige os dois artefatos do mesmo ciclo e uma confirmação explícita. Ele
+valida os arquivos, interrompe a API, substitui o banco e os uploads e reinicia o serviço. Execute-o
+somente durante uma janela aprovada:
+
+```powershell
+.\scripts\restore-production.ps1 `
+  -DatabaseBackup D:\backups\ceasaminas\postgres-20260811-020000.dump `
+  -UploadsBackup D:\backups\ceasaminas\uploads-20260811-020000.tar.gz `
+  -ConfirmDataReplacement
+```
+
+Depois, confirme `/api/v1/health`, autenticação, notícias, licitações, transparência e arquivos. Em
+um teste trimestral, use uma cópia isolada do ambiente e registre duração, resultado e responsável.
+
 ## Monitoramento mínimo
 
 - consultar `/api/v1/health/live` para processo e `/api/v1/health` para dependências;
