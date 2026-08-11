@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -8,6 +8,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { resolve } from 'node:path';
 import { prepareLocalStorage } from './storage/local-storage.js';
+import { requestLoggingMiddleware } from './observability/request-logging.middleware.js';
 import {
   apiPort,
   apiPrefix,
@@ -21,7 +22,9 @@ config({ path: resolve(process.cwd(), '../../.env') });
 async function bootstrap() {
   const { AppModule } = await import('./app.module.js');
   await prepareLocalStorage();
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: new ConsoleLogger({ json: process.env.NODE_ENV === 'production', colors: false }),
+  });
   app.enableShutdownHooks();
 
   app.useStaticAssets(resolve(process.cwd(), 'uploads'), { prefix: '/uploads/' });
@@ -31,6 +34,7 @@ async function bootstrap() {
   app.set('trust proxy', 1);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(cookieParser());
+  app.use(requestLoggingMiddleware);
 
   app.enableCors({
     origin: corsOrigins(),

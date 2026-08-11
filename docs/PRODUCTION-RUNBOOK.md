@@ -50,5 +50,10 @@ sobre produção sem janela aprovada e backup imediatamente anterior.
 - monitorar validade TLS, erros HTTP 5xx, latência e falhas de autenticação;
 - não registrar tokens, senhas, cookies ou conteúdo pessoal.
 
+Em produção, a API emite logs JSON e devolve `x-request-id` em todas as respostas. O proxy ou o
+coletor pode fornecer esse cabeçalho; valores inválidos são substituídos. Os registros HTTP incluem
+somente método, caminho sem query string, status e duração, evitando cookies, tokens, corpo, IP e
+parâmetros potencialmente pessoais.
+
 Este repositório prepara os serviços, mas a validação de DNS, certificados, restauração, alertas e
 capacidade depende do ambiente real e deve ser registrada durante a homologação.
