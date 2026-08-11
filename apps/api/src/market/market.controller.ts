@@ -7,6 +7,13 @@ import { MarketService } from './market.service.js';
 export class MarketController {
   constructor(private readonly marketService: MarketService) {}
 
+  @Get('bulletins')
+  @ApiOperation({ summary: 'Lista os boletins recentes exibidos no portal público' })
+  @ApiQuery({ name: 'limit', required: false, example: 12 })
+  bulletins(@Query('limit') limit?: string) {
+    return this.marketService.getRecentBulletins(limit ? Number(limit) : 12);
+  }
+
   @Get('dashboard')
   @ApiOperation({ summary: 'Retorna o painel consolidado de mercado' })
   @ApiQuery({ name: 'product', required: false })

@@ -60,6 +60,23 @@ export class MarketService {
     return Number((((currentAverage - previousAverage) / previousAverage) * 100).toFixed(2));
   }
 
+  getRecentBulletins(limit = 12) {
+    const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Math.trunc(limit), 1), 24) : 12;
+
+    return prisma.marketBulletin.findMany({
+      orderBy: [{ referenceAt: 'desc' }, { importedAt: 'desc' }],
+      take: safeLimit,
+      select: {
+        id: true,
+        sourceFile: true,
+        market: true,
+        referenceAt: true,
+        importedAt: true,
+        _count: { select: { prices: true } },
+      },
+    });
+  }
+
   async getLatestPrices(product?: string) {
     const latestBulletin = await prisma.marketBulletin.findFirst({
       orderBy: [{ referenceAt: 'desc' }, { importedAt: 'desc' }],

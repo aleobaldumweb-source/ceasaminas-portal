@@ -82,7 +82,7 @@ export function getMarketDashboard(days = 30, product?: string) {
 }
 
 export function getMarketImports(limit = 12) {
-  return apiRequest<MarketImport[]>(`/market/imports?limit=${limit}`);
+  return apiRequest<MarketImport[]>(`/market/bulletins?limit=${limit}`);
 }
 
 export function formatMarketDate(value: string | null, withTime = false) {
