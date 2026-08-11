@@ -38,7 +38,7 @@ try {
   if ($LASTEXITCODE -ne 0) { throw 'O backup do PostgreSQL está inválido ou corrompido.' }
 
   docker compose @compose run --rm --no-deps --user root `
-    -v "${($uploadsFile.DirectoryName)}:/backup:ro" --entrypoint sh api `
+    -v "$($uploadsFile.DirectoryName):/backup:ro" --entrypoint sh api `
     -c "tar -tzf /backup/$($uploadsFile.Name) >/dev/null"
   if ($LASTEXITCODE -ne 0) { throw 'O backup de uploads está inválido ou corrompido.' }
 
@@ -51,7 +51,7 @@ try {
   if ($LASTEXITCODE -ne 0) { throw 'Falha ao restaurar o PostgreSQL.' }
 
   docker compose @compose run --rm --no-deps --user root `
-    -v "${($uploadsFile.DirectoryName)}:/backup:ro" --entrypoint sh api `
+    -v "$($uploadsFile.DirectoryName):/backup:ro" --entrypoint sh api `
     -c "rm -rf /app/apps/api/uploads/* && tar -xzf /backup/$($uploadsFile.Name) -C /app/apps/api"
   if ($LASTEXITCODE -ne 0) { throw 'Falha ao restaurar os uploads.' }
 }

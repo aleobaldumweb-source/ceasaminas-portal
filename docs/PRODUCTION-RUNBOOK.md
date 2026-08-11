@@ -60,6 +60,9 @@ somente durante uma janela aprovada:
 
 Depois, confirme `/api/v1/health`, autenticação, notícias, licitações, transparência e arquivos. Em
 um teste trimestral, use uma cópia isolada do ambiente e registre duração, resultado e responsável.
+O fluxo automatizado foi validado em uma stack Docker descartável em 11/08/2026, incluindo as oito
+migrations e a recuperação de um arquivo de uploads; isso não substitui o exercício periódico no
+ambiente de hospedagem.
 
 ## Monitoramento mínimo
 
