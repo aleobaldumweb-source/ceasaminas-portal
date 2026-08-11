@@ -27,7 +27,8 @@ antes da atualização das aplicações. Consulte `docs/PRODUCTION-RUNBOOK.md`.
 
 ## Limites atuais
 
-- recuperação de senha por e-mail ainda não está disponível;
-- testes cobrem API e persistência, mas não há suíte de navegador E2E;
+- a recuperação de senha depende de um servidor SMTP configurado e homologado no ambiente;
+- a suíte E2E cobre os fluxos públicos e de autenticação essenciais, mas deve crescer com os demais
+  fluxos críticos;
 - alertas e armazenamento externo de logs dependem do ambiente de hospedagem;
 - restauração e capacidade precisam ser homologadas no ambiente real.

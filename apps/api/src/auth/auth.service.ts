@@ -2,15 +2,20 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
+  Optional,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService, type JwtSignOptions } from '@nestjs/jwt';
 import { compare, hash } from 'bcryptjs';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { prisma } from '@ceasaminas/database';
 import { Role, type AuthUser, type JwtPayload } from './auth.types.js';
 import type { LoginDto } from './dto/login.dto.js';
 import type { BootstrapAdminDto } from './dto/bootstrap-admin.dto.js';
+import type { ForgotPasswordDto } from './dto/forgot-password.dto.js';
+import type { ResetPasswordDto } from './dto/reset-password.dto.js';
+import { MailService } from './mail.service.js';
 
 type RequestMeta = {
   ipAddress?: string;
@@ -19,7 +24,78 @@ type RequestMeta = {
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
+  private readonly logger = new Logger(AuthService.name);
+
+  constructor(
+    private readonly jwtService: JwtService,
+    @Optional() private readonly mailService?: MailService,
+  ) {}
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await prisma.user.findUnique({
+      where: { email: dto.email.trim().toLowerCase() },
+      select: { id: true, email: true, name: true, status: true },
+    });
+    if (!user || user.status !== 'ACTIVE') return { accepted: true };
+
+    const token = randomBytes(32).toString('base64url');
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+    const record = await prisma.$transaction(async (transaction) => {
+      await transaction.passwordResetToken.updateMany({
+        where: { userId: user.id, usedAt: null },
+        data: { usedAt: new Date() },
+      });
+      return transaction.passwordResetToken.create({
+        data: { userId: user.id, tokenHash: this.hashToken(token), expiresAt },
+        select: { id: true },
+      });
+    });
+
+    try {
+      if (!this.mailService) throw new Error('Serviço de e-mail indisponível.');
+      await this.mailService.sendPasswordReset(user.email, user.name, token);
+    } catch {
+      await prisma.passwordResetToken.deleteMany({ where: { id: record.id } });
+      this.logger.error({ event: 'password_reset_delivery_failed' });
+    }
+    return { accepted: true };
+  }
+
+  async resetPassword(dto: ResetPasswordDto, meta: RequestMeta) {
+    const tokenHash = this.hashToken(dto.token);
+    const token = await prisma.passwordResetToken.findFirst({
+      where: { tokenHash, usedAt: null, expiresAt: { gt: new Date() } },
+      select: { id: true, userId: true },
+    });
+    if (!token) throw new UnauthorizedException('Link de redefinição inválido ou expirado.');
+    const passwordHash = await hash(dto.password, 12);
+
+    await prisma.$transaction(async (transaction) => {
+      const claimed = await transaction.passwordResetToken.updateMany({
+        where: { id: token.id, usedAt: null, expiresAt: { gt: new Date() } },
+        data: { usedAt: new Date() },
+      });
+      if (claimed.count !== 1) {
+        throw new UnauthorizedException('Link de redefinição inválido ou expirado.');
+      }
+      await transaction.user.update({ where: { id: token.userId }, data: { passwordHash } });
+      await transaction.authSession.updateMany({
+        where: { userId: token.userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+      await transaction.auditLog.create({
+        data: {
+          userId: token.userId,
+          action: 'AUTH_PASSWORD_RESET',
+          resource: 'USER',
+          resourceId: token.userId,
+          ipAddress: meta.ipAddress,
+          userAgent: meta.userAgent,
+        },
+      });
+    });
+    return { success: true };
+  }
 
   async bootstrap(dto: BootstrapAdminDto, bootstrapToken: string | undefined, meta: RequestMeta) {
     const expectedToken = process.env.BOOTSTRAP_ADMIN_TOKEN;

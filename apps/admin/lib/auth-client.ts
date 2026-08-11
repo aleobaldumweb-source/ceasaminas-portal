@@ -62,6 +62,24 @@ export async function logout() {
   setAccessToken(null);
 }
 
+export async function requestPasswordReset(email: string) {
+  const response = await fetch(`${API_URL}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) throw new Error(await parseError(response));
+}
+
+export async function resetPassword(token: string, password: string) {
+  const response = await fetch(`${API_URL}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, password }),
+  });
+  if (!response.ok) throw new Error(await parseError(response));
+}
+
 export async function authenticatedRequest<T>(
   path: string,
   init?: RequestInit,

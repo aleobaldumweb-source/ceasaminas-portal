@@ -58,6 +58,7 @@ model User {
 
   sessions  AuthSession[]
   auditLogs AuditLog[]
+  passwordResetTokens PasswordResetToken[]
 
   @@index([role, status])
   @@map("users")
@@ -149,6 +150,20 @@ model AuthSession {
   @@index([userId, revokedAt])
   @@index([expiresAt])
   @@map("auth_sessions")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, usedAt, expiresAt])
+  @@map("password_reset_tokens")
 }
 
 model AuditLog {

@@ -70,6 +70,28 @@ describe('persistência de autenticação', () => {
     await service.logout(user.id, payload.sessionId, meta);
     await assert.rejects(() => service.refresh(rotated.refreshToken, meta), /revogada/);
 
+    let resetToken;
+    const recoveryService = new AuthService(jwt, {
+      sendPasswordReset: async (_email, _name, token) => {
+        resetToken = token;
+      },
+    });
+    assert.deepEqual(await recoveryService.forgotPassword({ email: user.email }), {
+      accepted: true,
+    });
+    assert.ok(resetToken);
+    const nextPassword = `nova-senha-${suffix}`;
+    await recoveryService.resetPassword({ token: resetToken, password: nextPassword }, meta);
+    await assert.rejects(
+      () => recoveryService.resetPassword({ token: resetToken, password: nextPassword }, meta),
+      /inválido ou expirado/,
+    );
+    await assert.rejects(
+      () => recoveryService.login({ email: user.email, password }, meta),
+      /inválidos/,
+    );
+    await recoveryService.login({ email: user.email, password: nextPassword }, meta);
+
     const session = await prisma.authSession.findUnique({ where: { id: payload.sessionId } });
     assert.ok(session?.revokedAt instanceof Date);
 
@@ -80,7 +102,12 @@ describe('persistência de autenticação', () => {
     });
     assert.deepEqual(
       actions.map(({ action }) => action),
-      ['AUTH_LOGIN', 'AUTH_LOGIN', 'AUTH_OTHER_SESSIONS_REVOKED', 'AUTH_LOGOUT'],
+      ['AUTH_LOGIN', 'AUTH_LOGIN', 'AUTH_OTHER_SESSIONS_REVOKED', 'AUTH_LOGOUT', 'AUTH_LOGIN'],
+    );
+
+    assert.equal(
+      await prisma.auditLog.count({ where: { userId: user.id, action: 'AUTH_PASSWORD_RESET' } }),
+      1,
     );
   });
 });

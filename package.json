@@ -8,10 +8,11 @@
   },
   "scripts": {
     "dev": "turbo dev",
-    "build": "turbo build",
-    "lint": "turbo lint",
-    "typecheck": "turbo typecheck",
-    "test": "pnpm --filter @ceasaminas/api test",
+    "build": "pnpm db:generate && turbo build",
+    "lint": "pnpm db:generate && turbo lint",
+    "typecheck": "pnpm db:generate && turbo typecheck",
+    "test": "pnpm db:generate && pnpm --filter @ceasaminas/api test",
+    "test:e2e": "playwright test",
     "check": "pnpm lint && pnpm typecheck && pnpm build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@playwright/test": "^1.62.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
     "prettier": "^3.9.5",

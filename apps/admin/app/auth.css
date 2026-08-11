@@ -98,6 +98,13 @@
   color: #758078;
   text-align: center;
 }
+.auth-link {
+  margin-top: 18px;
+  display: block;
+  color: #126b3a;
+  font-weight: 700;
+  text-align: center;
+}
 .user-menu {
   display: flex;
   align-items: center;

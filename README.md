@@ -81,10 +81,11 @@ segredos reais nunca devem ser versionados.
 
 ## Estado e limitações
 
-O repositório contém um MVP funcional com testes de API e persistência. Ainda faltam recuperação de
-senha por e-mail, testes E2E no navegador e homologação da infraestrutura, acessibilidade,
-desempenho, restauração e monitoramento no ambiente real. A existência dos artefatos de deploy não
-comprova prontidão operacional sem essa homologação.
+O repositório contém um MVP funcional com recuperação de senha por e-mail, testes de API e
+persistência e uma suíte E2E inicial para os fluxos públicos e de autenticação em desktop e mobile.
+Ainda faltam homologação da infraestrutura, acessibilidade, desempenho, restauração e monitoramento
+no ambiente real. A existência dos artefatos de deploy não comprova prontidão operacional sem essa
+homologação.
 
 As regras de contribuição e entrega estão em `AGENTS.md` e
 `docs/DELIVERY-PLAYBOOK.md`.

@@ -54,6 +54,17 @@ async function bootstrap() {
     }),
   );
 
+  app.use(
+    `/${prefix}/auth/forgot-password`,
+    rateLimit({
+      windowMs: 15 * 60 * 1000,
+      limit: 5,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: { statusCode: 429, message: 'Muitas solicitações. Aguarde alguns minutos.' },
+    }),
+  );
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

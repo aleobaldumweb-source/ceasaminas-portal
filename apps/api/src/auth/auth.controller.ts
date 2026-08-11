@@ -20,6 +20,8 @@ import type { AuthenticatedUser } from './auth.types.js';
 import { authCookiePath } from '../config/runtime-config.js';
 import { LoginDto } from './dto/login.dto.js';
 import { BootstrapAdminDto } from './dto/bootstrap-admin.dto.js';
+import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
+import { ResetPasswordDto } from './dto/reset-password.dto.js';
 
 const REFRESH_COOKIE = 'ceasa_refresh_token';
 
@@ -27,6 +29,18 @@ const REFRESH_COOKIE = 'ceasa_refresh_token';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('forgot-password')
+  @HttpCode(202)
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Post('reset-password')
+  @HttpCode(200)
+  resetPassword(@Body() dto: ResetPasswordDto, @Req() request: Request) {
+    return this.authService.resetPassword(dto, this.meta(request));
+  }
 
   @Post('bootstrap')
   @ApiOperation({ summary: 'Cria o primeiro administrador' })

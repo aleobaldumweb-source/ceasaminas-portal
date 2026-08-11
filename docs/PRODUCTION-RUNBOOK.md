@@ -11,6 +11,11 @@ Copie `deploy/.env.production.example` para `deploy/.env.production`, preencha o
 mantenha o arquivo fora do Git. Use valores aleatórios com pelo menos 32 caracteres para os segredos
 JWT e restrinja o acesso ao arquivo a administradores do servidor.
 
+Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_SECURE` e, quando exigidos pelo provedor,
+`SMTP_USER` e `SMTP_PASSWORD`. `ADMIN_PUBLIC_URL` deve apontar para a origem HTTPS pública do admin,
+pois ela é usada para gerar o link de redefinição de senha. Antes da publicação, envie uma
+recuperação para uma conta de teste e confirme entrega, expiração e uso único do link.
+
 ## Primeira publicação
 
 ```powershell

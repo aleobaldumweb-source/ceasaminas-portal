@@ -1,6 +1,7 @@
 'use client';
 
 import { type FormEvent, useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '../../components/auth-provider';
 
 export default function LoginPage() {
@@ -80,6 +81,10 @@ export default function LoginPage() {
           <button className="primary login-button" disabled={submitting} type="submit">
             {submitting ? 'Entrando...' : 'Entrar'}
           </button>
+
+          <Link className="auth-link" href="/forgot-password">
+            Esqueci minha senha
+          </Link>
 
           <small className="security-note">
             Sessão protegida por token de curta duração e renovação segura.
