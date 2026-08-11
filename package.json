@@ -34,6 +34,7 @@
     "test:news-crud": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/test-news-crud.ps1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@playwright/test": "^1.62.1",

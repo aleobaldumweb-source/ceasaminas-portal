@@ -249,6 +249,11 @@
   max-width: 720px;
 }
 
+.sectionHeader .eyebrow,
+.newsHeader .eyebrow {
+  color: #6b5200;
+}
+
 .sectionHeader h2,
 .newsHeader h2,
 .networkGrid h2,
@@ -312,7 +317,7 @@
 .serviceNumber {
   display: inline-flex;
   margin-bottom: 48px;
-  color: #c79b0d;
+  color: #6b5200;
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 1.15rem;
 }
