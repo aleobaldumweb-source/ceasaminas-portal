@@ -63,7 +63,7 @@ um teste trimestral, use uma cópia isolada do ambiente e registre duração, re
 
 ## Monitoramento mínimo
 
-- consultar `/api/v1/health/live` para processo e `/api/v1/health` para dependências;
+- consultar `/api/v1/health/live` para processo e `/api/v1/health` para PostgreSQL, Redis e uploads;
 - alertar após três falhas consecutivas ou uso de disco acima de 80%;
 - coletar logs do Docker fora do servidor e configurar retenção;
 - monitorar validade TLS, erros HTTP 5xx, latência e falhas de autenticação;
