@@ -105,3 +105,6 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Performance budgets
+        run: pnpm test:performance

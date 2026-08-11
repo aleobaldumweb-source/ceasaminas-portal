@@ -29,6 +29,34 @@ async function expectAccessible(page: Page) {
   expect(results.violations, summarizeViolations(results.violations)).toEqual([]);
 }
 
+async function expectKeyboardFocusVisible(page: Page, steps: number) {
+  let verified = 0;
+  for (let attempt = 0; attempt < steps + 5 && verified < steps; attempt += 1) {
+    await page.keyboard.press('Tab');
+    const focus = await page.evaluate(() => {
+      const element = document.activeElement;
+      if (!(element instanceof HTMLElement)) return null;
+      const style = getComputedStyle(element);
+      return {
+        tag: element.tagName,
+        visible: Boolean(
+          element.offsetWidth || element.offsetHeight || element.getClientRects().length,
+        ),
+        hasIndicator: style.outlineStyle !== 'none' || style.boxShadow !== 'none',
+      };
+    });
+
+    if (!focus || !['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(focus.tag)) continue;
+
+    verified += 1;
+    expect(focus.visible, `Foco invisível no passo ${verified} (${focus.tag}).`).toBe(true);
+    expect(focus.hasIndicator, `Sem indicador de foco no passo ${verified} (${focus.tag}).`).toBe(
+      true,
+    );
+  }
+  expect(verified, 'A ordem de teclado terminou antes dos controles esperados.').toBe(steps);
+}
+
 for (const route of pages) {
   test(`${route.name} não possui violações WCAG A/AA detectáveis`, async ({ page }) => {
     await page.goto(route.url, { waitUntil: 'domcontentloaded' });
@@ -36,3 +64,14 @@ for (const route of pages) {
     await expectAccessible(page);
   });
 }
+
+test('portal mantém foco visível e ordem de teclado utilizável', async ({ page }) => {
+  await page.goto('http://localhost:3000/', { waitUntil: 'domcontentloaded' });
+  await expectKeyboardFocusVisible(page, 12);
+});
+
+test('login administrativo mantém foco visível por teclado', async ({ page }) => {
+  await page.goto('http://localhost:3001/login', { waitUntil: 'domcontentloaded' });
+  await expect(page.getByLabel('E-mail')).toBeVisible();
+  await expectKeyboardFocusVisible(page, 4);
+});

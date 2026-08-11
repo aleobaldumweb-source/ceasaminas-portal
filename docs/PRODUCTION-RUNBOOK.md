@@ -74,5 +74,17 @@ coletor pode fornecer esse cabeçalho; valores inválidos são substituídos. Os
 somente método, caminho sem query string, status e duração, evitando cookies, tokens, corpo, IP e
 parâmetros potencialmente pessoais.
 
+O Compose aplica rotação local a todos os contêineres, limitando cada arquivo a 10 MB e mantendo
+cinco arquivos por serviço. Isso protege o disco, mas não substitui o envio para um coletor externo
+com retenção e alertas definidos pela operação.
+
 Este repositório prepara os serviços, mas a validação de DNS, certificados, restauração, alertas e
 capacidade depende do ambiente real e deve ser registrada durante a homologação.
+
+## Orçamento de desempenho
+
+Execute `pnpm test:performance` após o build. O Lighthouse CI mede início, institucional e contato
+em modo desktop e exige desempenho mínimo de 80, acessibilidade de 95, boas práticas e SEO de 90,
+LCP de até 3 segundos, CLS de até 0,1 e TBT de até 300 ms. A CI aplica os mesmos limites. Esses
+resultados locais detectam regressões, mas a homologação final deve ser repetida na URL pública com
+rede e infraestrutura reais.

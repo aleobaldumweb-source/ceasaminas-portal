@@ -26,6 +26,11 @@ body {
 a {
   color: inherit;
 }
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px #075c38;
+}
 .container {
   width: min(1180px, calc(100% - 2rem));
   margin-inline: auto;
