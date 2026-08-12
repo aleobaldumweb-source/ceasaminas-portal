@@ -88,6 +88,9 @@ jobs:
       - name: Check formatting
         run: pnpm format:check
 
+      - name: Check production shell scripts
+        run: bash -n scripts/*.sh
+
       - name: Lint
         run: pnpm lint
 

@@ -41,6 +41,12 @@ docker compose --env-file deploy/.env.production -f deploy/compose.production.ym
 docker compose --env-file deploy/.env.production -f deploy/compose.production.yml up -d
 ```
 
+No Ubuntu Server, execute o equivalente Bash a partir da raiz do repositório:
+
+```bash
+./scripts/backup-production.sh /var/backups/ceasaminas
+```
+
 ## Backup e restauração
 
 Agende `backup-production.ps1` diariamente e copie os artefatos para outro local. O padrão conserva
@@ -56,6 +62,15 @@ somente durante uma janela aprovada:
   -DatabaseBackup D:\backups\ceasaminas\postgres-20260811-020000.dump `
   -UploadsBackup D:\backups\ceasaminas\uploads-20260811-020000.tar.gz `
   -ConfirmDataReplacement
+```
+
+No Ubuntu Server:
+
+```bash
+./scripts/restore-production.sh \
+  /var/backups/ceasaminas/postgres-20260811-020000.dump \
+  /var/backups/ceasaminas/uploads-20260811-020000.tar.gz \
+  --confirm-data-replacement
 ```
 
 Depois, confirme `/api/v1/health`, autenticação, notícias, licitações, transparência e arquivos. Em
