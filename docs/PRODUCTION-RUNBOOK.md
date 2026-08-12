@@ -25,6 +25,18 @@ da stack. O preflight não envia dados nem inicia serviços:
 
 ## Primeira publicação
 
+No Ubuntu Server, execute a sequência completa com espera pelas sondas de saúde:
+
+```bash
+./scripts/deploy-production.sh
+```
+
+O script interrompe imediatamente em caso de falha no preflight, build, banco, migrations ou saúde
+dos serviços. Use `--skip-build` somente quando as imagens locais já tiverem sido construídas e
+validadas para o mesmo commit.
+
+Os comandos equivalentes para execução manual são:
+
 ```powershell
 docker compose --env-file deploy/.env.production -f deploy/compose.production.yml build
 docker compose --env-file deploy/.env.production -f deploy/compose.production.yml --profile tools run --rm migrate
