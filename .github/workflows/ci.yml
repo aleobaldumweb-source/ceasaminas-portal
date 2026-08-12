@@ -108,3 +108,26 @@ jobs:
 
       - name: Performance budgets
         run: pnpm test:performance
+
+  container-images:
+    name: Build ${{ matrix.app }} image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [portal, admin]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Build production image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: false
+          build-args: NEXT_PUBLIC_API_URL=http://api:3333/api/v1
+          tags: ceasaminas-${{ matrix.app }}:ci
