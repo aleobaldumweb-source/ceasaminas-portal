@@ -94,6 +94,7 @@ jobs:
           ./scripts/test-production-preflight.sh
           ./scripts/test-production-deploy.sh
           ./scripts/test-production-verify.sh
+          ./scripts/test-production-update.sh
 
       - name: Lint
         run: pnpm lint

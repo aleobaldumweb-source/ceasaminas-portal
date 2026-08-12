@@ -2,14 +2,24 @@
 set -Eeuo pipefail
 
 usage() {
-  echo "Uso: $0 <diretorio-destino> [dias-retencao]" >&2
+  echo "Uso: $0 <diretorio-destino> [dias-retencao] [--env-file caminho]" >&2
   exit 2
 }
 
-[[ $# -ge 1 && $# -le 2 ]] || usage
+[[ $# -ge 1 ]] || usage
 
 destination=$1
-retention_days=${2:-30}
+shift
+retention_days=30
+env_file=deploy/.env.production
+if [[ $# -gt 0 && $1 != --env-file ]]; then
+  retention_days=$1
+  shift
+fi
+if [[ $# -gt 0 ]]; then
+  [[ $# -eq 2 && $1 == --env-file ]] || usage
+  env_file=$2
+fi
 [[ $retention_days =~ ^[0-9]+$ ]] || usage
 
 repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -20,7 +30,7 @@ destination=$(cd -- "$destination" && pwd -P)
 stamp=$(date -u +%Y%m%d-%H%M%S)
 database_file="$destination/postgres-$stamp.dump"
 uploads_file="$destination/uploads-$stamp.tar.gz"
-compose=(docker compose --env-file deploy/.env.production -f deploy/compose.production.yml)
+compose=(docker compose --env-file "$env_file" -f deploy/compose.production.yml)
 
 cleanup_incomplete() {
   [[ -s $database_file ]] || rm -f -- "$database_file"

@@ -62,6 +62,15 @@ Antes de atualizar, gere backup. Construa as imagens, execute as migrações e s
 serviços. Migrações devem ser compatíveis com a versão anterior durante a janela de implantação; uma
 reversão de aplicação não desfaz dados automaticamente.
 
+No Ubuntu, automatize a sequência completa informando um destino externo ou sincronizado de backup:
+
+```bash
+./scripts/update-production.sh --backup-dir /var/backups/ceasaminas
+```
+
+O script só prossegue após criar os dois artefatos de backup e termina executando a verificação
+pública. `--skip-public-verify` deve ser usado apenas quando DNS/HTTPS ainda não estiver disponível.
+
 ```powershell
 .\scripts\backup-production.ps1 -Destination D:\backups\ceasaminas
 docker compose --env-file deploy/.env.production -f deploy/compose.production.yml build
