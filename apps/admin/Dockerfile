@@ -15,7 +15,6 @@ ENV HOSTNAME=0.0.0.0
 WORKDIR /app
 COPY --from=build --chown=node:node /app/apps/admin/.next/standalone ./
 COPY --from=build --chown=node:node /app/apps/admin/.next/static ./apps/admin/.next/static
-COPY --from=build --chown=node:node /app/apps/admin/public ./apps/admin/public
 USER node
 EXPOSE 3001
 CMD ["node", "apps/admin/server.js"]
