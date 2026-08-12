@@ -89,7 +89,9 @@ jobs:
         run: pnpm format:check
 
       - name: Check production shell scripts
-        run: bash -n scripts/*.sh
+        run: |
+          bash -n scripts/*.sh
+          ./scripts/test-production-preflight.sh
 
       - name: Lint
         run: pnpm lint

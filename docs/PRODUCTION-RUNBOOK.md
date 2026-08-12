@@ -16,6 +16,13 @@ Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_SECURE` e, quando exigido
 pois ela é usada para gerar o link de redefinição de senha. Antes da publicação, envie uma
 recuperação para uma conta de teste e confirme entrega, expiração e uso único do link.
 
+Antes do primeiro deploy no Ubuntu, valide arquivo, segredos, Docker, Compose, portas e renderização
+da stack. O preflight não envia dados nem inicia serviços:
+
+```bash
+./scripts/preflight-production.sh
+```
+
 ## Primeira publicação
 
 ```powershell
