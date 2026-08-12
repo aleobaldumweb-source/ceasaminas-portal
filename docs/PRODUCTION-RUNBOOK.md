@@ -47,6 +47,15 @@ docker compose --env-file deploy/.env.production -f deploy/compose.production.ym
 O Caddy solicita e renova certificados TLS automaticamente. A API não publica Swagger em produção,
 PostgreSQL e Redis não expõem portas ao host, e os serviços possuem sondas de saúde.
 
+Quando o DNS já estiver propagado e o Caddy tiver emitido os certificados, execute o gate público:
+
+```bash
+./scripts/verify-production.sh
+```
+
+Ele exige HTTP 200 por HTTPS no portal, login do admin e sondas da API, além de confirmar
+PostgreSQL, Redis e uploads como saudáveis.
+
 ## Atualização e reversão
 
 Antes de atualizar, gere backup. Construa as imagens, execute as migrações e só então substitua os

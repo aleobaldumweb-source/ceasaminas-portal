@@ -93,6 +93,7 @@ jobs:
           bash -n scripts/*.sh
           ./scripts/test-production-preflight.sh
           ./scripts/test-production-deploy.sh
+          ./scripts/test-production-verify.sh
 
       - name: Lint
         run: pnpm lint
