@@ -25,6 +25,12 @@
   font: inherit;
 }
 
+.form input:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px #075c38;
+}
+
 .form button {
   display: inline-flex;
   min-width: 150px;

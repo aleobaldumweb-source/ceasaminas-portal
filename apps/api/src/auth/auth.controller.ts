@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   HttpCode,
+  Param,
   Post,
   Req,
   Res,
@@ -14,9 +16,12 @@ import type { Request, Response } from 'express';
 import { AuthService } from './auth.service.js';
 import { CurrentUser } from './decorators/current-user.decorator.js';
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
-import type { AuthUser } from './auth.types.js';
+import type { AuthenticatedUser } from './auth.types.js';
+import { authCookiePath } from '../config/runtime-config.js';
 import { LoginDto } from './dto/login.dto.js';
 import { BootstrapAdminDto } from './dto/bootstrap-admin.dto.js';
+import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
+import { ResetPasswordDto } from './dto/reset-password.dto.js';
 
 const REFRESH_COOKIE = 'ceasa_refresh_token';
 
@@ -24,6 +29,18 @@ const REFRESH_COOKIE = 'ceasa_refresh_token';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('forgot-password')
+  @HttpCode(202)
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Post('reset-password')
+  @HttpCode(200)
+  resetPassword(@Body() dto: ResetPasswordDto, @Req() request: Request) {
+    return this.authService.resetPassword(dto, this.meta(request));
+  }
 
   @Post('bootstrap')
   @ApiOperation({ summary: 'Cria o primeiro administrador' })
@@ -75,22 +92,13 @@ export class AuthController {
   @HttpCode(200)
   @ApiOperation({ summary: 'Encerra a sessão atual' })
   async logout(
-    @CurrentUser() user: AuthUser,
+    @CurrentUser() user: AuthenticatedUser,
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    await this.authService.logout(
-      user.id,
-      request.cookies?.[REFRESH_COOKIE] as string | undefined,
-      this.meta(request),
-    );
+    await this.authService.logout(user.id, user.sessionId, this.meta(request));
 
-    response.clearCookie(REFRESH_COOKIE, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/api/v1/auth',
-    });
+    this.clearRefreshCookie(response);
 
     return { success: true };
   }
@@ -98,8 +106,43 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  me(@CurrentUser() user: AuthUser) {
-    return { user };
+  me(@CurrentUser() user: AuthenticatedUser) {
+    return {
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+    };
+  }
+
+  @Get('sessions')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  sessions(@CurrentUser() user: AuthenticatedUser) {
+    return this.authService.listSessions(user.id, user.sessionId);
+  }
+
+  @Delete('sessions/others')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  revokeOtherSessions(@CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
+    return this.authService.revokeOtherSessions(user.id, user.sessionId, this.meta(request));
+  }
+
+  @Delete('sessions/:sessionId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async revokeSession(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('sessionId') sessionId: string,
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = await this.authService.revokeSession(
+      user.id,
+      sessionId,
+      user.sessionId,
+      this.meta(request),
+    );
+    if (result.current) this.clearRefreshCookie(response);
+    return result;
   }
 
   private setRefreshCookie(response: Response, token: string) {
@@ -107,8 +150,17 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
-      path: '/api/v1/auth',
+      path: authCookiePath(),
       maxAge: Number(process.env.JWT_REFRESH_TTL_DAYS ?? 7) * 24 * 60 * 60 * 1000,
+    });
+  }
+
+  private clearRefreshCookie(response: Response) {
+    response.clearCookie(REFRESH_COOKIE, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: authCookiePath(),
     });
   }
 

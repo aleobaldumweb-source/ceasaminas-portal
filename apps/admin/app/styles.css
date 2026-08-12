@@ -202,6 +202,11 @@ select:focus {
   border-color: var(--green);
   box-shadow: 0 0 0 3px #126b3a18;
 }
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px #126b3a;
+}
 textarea {
   resize: vertical;
 }

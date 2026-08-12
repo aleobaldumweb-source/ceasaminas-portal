@@ -9,6 +9,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { AdminSidebar } from '../components/admin-sidebar';
 import { useAuth } from '../components/auth-provider';
 import { authenticatedRequest as request } from '../lib/auth-client';
 
@@ -27,7 +28,8 @@ type News = {
   createdAt: string;
   updatedAt: string;
 };
-type FormState = Omit<News, 'id' | 'createdAt' | 'updatedAt' | 'imageUrl' | 'sourceUrl'>;
+type FormState = Omit<News, 'id' | 'createdAt' | 'updatedAt' | 'imageUrl' | 'sourceUrl'> &
+  Record<'sourceUrl', string>;
 
 const emptyForm: FormState = {
   title: '',
@@ -37,6 +39,7 @@ const emptyForm: FormState = {
   category: 'Institucional',
   status: 'DRAFT',
   publishedAt: null,
+  sourceUrl: '',
 };
 
 const labels: Record<Status, string> = {
@@ -63,6 +66,18 @@ function formatDate(value: string | null) {
         timeStyle: 'short',
       }).format(new Date(value))
     : '—';
+}
+
+function resolveNewsImageUrl(value: string | null) {
+  if (!value) return null;
+
+  if (/^(?:https?:|blob:|data:)/i.test(value)) return value;
+
+  const origin = value.startsWith('/uploads/')
+    ? (process.env.NEXT_PUBLIC_API_ORIGIN ?? 'http://localhost:3333')
+    : (process.env.NEXT_PUBLIC_PORTAL_ORIGIN ?? 'http://localhost:3000');
+
+  return `${origin.replace(/\/+$/, '')}/${value.replace(/^\/+/, '')}`;
 }
 
 function normalize(raw: Record<string, unknown>): News {
@@ -130,6 +145,7 @@ export default function AdminHome() {
     [items],
   );
 
+  const previewImageUrl = resolveNewsImageUrl(localPreview ?? currentImageUrl);
   const filtered = items.filter((item) =>
     `${item.title} ${item.slug} ${item.category}`.toLowerCase().includes(query.toLowerCase()),
   );
@@ -147,6 +163,7 @@ export default function AdminHome() {
       category: item.category,
       status: item.status,
       publishedAt: item.publishedAt,
+      sourceUrl: item.sourceUrl ?? '',
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -231,6 +248,7 @@ export default function AdminHome() {
     const payload = {
       ...form,
       slug: slugify(form.slug || form.title),
+      sourceUrl: form.sourceUrl.trim(),
       publishedAt:
         form.status === 'PUBLISHED' ? (form.publishedAt ?? new Date().toISOString()) : null,
     };
@@ -286,27 +304,7 @@ export default function AdminHome() {
 
   return (
     <div className="layout">
-      <aside>
-        <div className="brand">
-          <b>CEASAMINAS</b>
-          <span>Administração</span>
-        </div>
-        <nav>
-          <a className="active" href="#dashboard">
-            Visão geral
-          </a>
-          <a href="#editor">Notícias</a>
-          <span>
-            Licitações <small>Em breve</small>
-          </span>
-          <a href="/market">Mercado</a>
-          <a href="/procurements">Licitações</a>
-          <span>
-            Transparência <small>Em breve</small>
-          </span>
-        </nav>
-        <footer>● Ambiente local</footer>
-      </aside>
+      <AdminSidebar active="overview" role={user?.role} />
 
       <main>
         <header>
@@ -440,6 +438,21 @@ export default function AdminHome() {
             </div>
 
             <label>
+              Fonte oficial (URL)
+              <input
+                type="url"
+                placeholder="https://www.ceasaminas.com.br/..."
+                value={form.sourceUrl}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    sourceUrl: event.target.value,
+                  }))
+                }
+              />
+            </label>
+
+            <label>
               Resumo
               <textarea
                 required
@@ -497,9 +510,9 @@ export default function AdminHome() {
                   outline: 'none',
                 }}
               >
-                {(localPreview ?? currentImageUrl) ? (
+                {previewImageUrl ? (
                   <img
-                    src={localPreview ?? currentImageUrl ?? ''}
+                    src={previewImageUrl}
                     alt="Pré-visualização"
                     style={{
                       width: '100%',

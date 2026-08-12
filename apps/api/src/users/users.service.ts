@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { hash } from 'bcryptjs';
 import { prisma } from '@ceasaminas/database';
 import type { AuthUser } from '../auth/auth.types.js';
@@ -16,6 +21,9 @@ const selectUser = {
   updatedAt: true,
 } as const;
 
+const isUniqueConstraintError = (error: unknown) =>
+  Boolean(error && typeof error === 'object' && 'code' in error && error.code === 'P2002');
+
 @Injectable()
 export class UsersService {
   findAll() {
@@ -30,32 +38,47 @@ export class UsersService {
     const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
     if (existing) throw new ConflictException('Já existe um usuário com esse e-mail.');
 
-    return prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          name: input.name.trim(),
-          email,
-          passwordHash: await hash(input.password, 12),
-          role: input.role,
-        },
-        select: selectUser,
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: {
+            name: input.name.trim(),
+            email,
+            passwordHash: await hash(input.password, 12),
+            role: input.role,
+          },
+          select: selectUser,
+        });
+        await tx.auditLog.create({
+          data: {
+            userId: actor.id,
+            action: 'USER_CREATED',
+            resource: 'USER',
+            resourceId: user.id,
+            metadata: { email: user.email, role: user.role },
+          },
+        });
+        return user;
       });
-      await tx.auditLog.create({
-        data: {
-          userId: actor.id,
-          action: 'USER_CREATED',
-          resource: 'USER',
-          resourceId: user.id,
-          metadata: { email: user.email, role: user.role },
-        },
-      });
-      return user;
-    });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new ConflictException('Já existe um usuário com esse e-mail.');
+      }
+      throw error;
+    }
   }
 
   async update(id: string, input: UpdateUserDto, actor: AuthUser) {
     const current = await prisma.user.findUnique({ where: { id }, select: { id: true } });
     if (!current) throw new NotFoundException('Usuário não encontrado.');
+
+    if (id === actor.id && input.role && input.role !== 'ADMIN') {
+      throw new BadRequestException('Não é permitido remover o próprio perfil de administrador.');
+    }
+
+    if (id === actor.id && input.status && input.status !== 'ACTIVE') {
+      throw new BadRequestException('Não é permitido bloquear ou inativar a própria conta.');
+    }
 
     if (input.email) {
       const duplicate = await prisma.user.findFirst({
@@ -65,34 +88,48 @@ export class UsersService {
       if (duplicate) throw new ConflictException('Já existe um usuário com esse e-mail.');
     }
 
-    return prisma.$transaction(async (tx) => {
-      const user = await tx.user.update({
-        where: { id },
-        data: {
-          ...(input.name ? { name: input.name.trim() } : {}),
-          ...(input.email ? { email: input.email.trim().toLowerCase() } : {}),
-          ...(input.role ? { role: input.role } : {}),
-          ...(input.status ? { status: input.status } : {}),
-          ...(input.password ? { passwordHash: await hash(input.password, 12) } : {}),
-        },
-        select: selectUser,
-      });
-      await tx.auditLog.create({
-        data: {
-          userId: actor.id,
-          action: 'USER_UPDATED',
-          resource: 'USER',
-          resourceId: user.id,
-          metadata: { role: user.role, status: user.status },
-        },
-      });
-      if (input.status && input.status !== 'ACTIVE') {
-        await tx.authSession.updateMany({
-          where: { userId: id, revokedAt: null },
-          data: { revokedAt: new Date() },
+    const shouldRevokeSessions =
+      Boolean(input.password) || Boolean(input.status && input.status !== 'ACTIVE');
+
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const user = await tx.user.update({
+          where: { id },
+          data: {
+            ...(input.name ? { name: input.name.trim() } : {}),
+            ...(input.email ? { email: input.email.trim().toLowerCase() } : {}),
+            ...(input.role ? { role: input.role } : {}),
+            ...(input.status ? { status: input.status } : {}),
+            ...(input.password ? { passwordHash: await hash(input.password, 12) } : {}),
+          },
+          select: selectUser,
         });
+        await tx.auditLog.create({
+          data: {
+            userId: actor.id,
+            action: 'USER_UPDATED',
+            resource: 'USER',
+            resourceId: user.id,
+            metadata: {
+              role: user.role,
+              status: user.status,
+              passwordChanged: Boolean(input.password),
+            },
+          },
+        });
+        if (shouldRevokeSessions) {
+          await tx.authSession.updateMany({
+            where: { userId: id, revokedAt: null },
+            data: { revokedAt: new Date() },
+          });
+        }
+        return user;
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new ConflictException('Já existe um usuário com esse e-mail.');
       }
-      return user;
-    });
+      throw error;
+    }
   }
 }

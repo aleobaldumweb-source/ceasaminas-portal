@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import styles from './news-media.module.css';
 
@@ -29,8 +29,24 @@ function normalizeImageUrl(src: string | null) {
 
 export function NewsMedia({ src, alt, priority = false, variant = 'card' }: NewsMediaProps) {
   const imageUrl = normalizeImageUrl(src);
+  const imageRef = useRef<HTMLImageElement>(null);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+    setFailed(false);
+
+    const image = imageRef.current;
+
+    if (!image?.complete) return;
+
+    if (image.naturalWidth > 0) {
+      setLoaded(true);
+    } else {
+      setFailed(true);
+    }
+  }, [imageUrl]);
 
   const rootClass = [
     styles.media,
@@ -58,6 +74,7 @@ export function NewsMedia({ src, alt, priority = false, variant = 'card' }: News
       <span className={styles.skeleton} aria-hidden="true" />
 
       <img
+        ref={imageRef}
         src={imageUrl}
         alt={alt}
         loading={priority ? 'eager' : 'lazy'}

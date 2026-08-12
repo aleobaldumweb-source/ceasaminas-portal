@@ -1,15 +1,20 @@
-# Sprint 0.2 — Fundação profissional
+# Sprint 0.2 — Fundação profissional (encerrada)
+
+Documento histórico. A fundação planejada nesta sprint foi concluída e o estado atual está descrito
+em `README.md`, `docs/ARCHITECTURE.md` e `docs/PRODUCTION-RUNBOOK.md`.
 
 ## Entregue
 
-- correção definitiva da resolução de `.env` no Prisma;
-- autorização declarativa dos scripts de build exigidos por Prisma e Sharp;
-- PostgreSQL, Redis, Mailpit e MinIO no Docker Compose;
-- pacotes compartilhados `auth`, `config` e `shared`;
-- Husky, lint-staged e Commitlint;
-- pipeline de qualidade com geração do Prisma Client;
-- documentação inicial de arquitetura, banco e desenvolvimento local.
+- monorepo com portal, admin, API e pacotes compartilhados;
+- PostgreSQL, Redis, Prisma e migrações;
+- autenticação, autorização por perfil, sessões e auditoria;
+- gestão de usuários, notícias, mercado, licitações e transparência;
+- pipeline de formatação, lint, tipos, testes e build;
+- empacotamento e runbook de produção.
 
-## Próximo incremento
+## Pendências posteriores
 
-Integração do Prisma com a API NestJS e criação dos módulos de usuários, notícias e auditoria.
+- recuperação de senha com entrega SMTP;
+- testes E2E dos fluxos críticos;
+- integração do monitoramento e homologação no ambiente real;
+- remoção dos backups históricos versionados após autorização explícita.

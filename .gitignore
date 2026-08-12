@@ -7,6 +7,9 @@ node_modules
 .next
 dist
 coverage
+test-results
+playwright-report
+.lighthouseci
 
 # TypeScript
 *.tsbuildinfo
@@ -16,6 +19,7 @@ coverage
 .env.local
 .env.*.local
 !.env.example
+deploy/.env.production
 
 # Logs
 *.log
