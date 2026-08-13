@@ -28,8 +28,8 @@ export class DirectoryAuthService {
         attributes: ['objectGUID', 'userPrincipalName', 'mail', 'displayName', 'cn', 'memberOf'],
         sizeLimit: 2,
       });
-      if (searchEntries.length !== 1) return null;
       const entry = searchEntries[0];
+      if (searchEntries.length !== 1 || !entry) return null;
       const groups = values(entry, 'memberOf').map((group) => group.toLowerCase());
       const role = this.roleForGroups(groups, config);
       if (!role) return null;
