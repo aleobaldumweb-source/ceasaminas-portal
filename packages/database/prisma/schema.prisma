@@ -45,6 +45,11 @@ enum Role {
   AUDITOR
 }
 
+enum AuthProvider {
+  LOCAL
+  DIRECTORY
+}
+
 model User {
   id           String     @id @default(cuid())
   name         String
@@ -52,6 +57,8 @@ model User {
   passwordHash String
   status       UserStatus @default(ACTIVE)
   role         Role       @default(JOURNALIST)
+  authProvider AuthProvider @default(LOCAL)
+  directoryId String?     @unique
   lastLoginAt  DateTime?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt

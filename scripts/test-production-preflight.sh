@@ -23,6 +23,7 @@ SMTP_HOST=smtp.ceasaminas.test.br
 SMTP_PORT=587
 SMTP_FROM=no-reply@ceasaminas.test.br
 SMTP_SECURE=false
+AD_ENABLED=false
 SMTP_USER=
 SMTP_PASSWORD=
 EOF
@@ -34,6 +35,14 @@ cp "$valid_env" "$invalid_env"
 sed -i 's/access-secret-with-at-least-32-characters/short/' "$invalid_env"
 if ./scripts/preflight-production.sh --env-file "$invalid_env" --env-only >/dev/null 2>&1; then
   echo "Falha: o preflight aceitou um segredo JWT curto." >&2
+  exit 1
+fi
+
+ad_env="$temp_dir/ad.env"
+cp "$valid_env" "$ad_env"
+printf '%s\n' 'AD_ENABLED=true' >>"$ad_env"
+if ./scripts/preflight-production.sh --env-file "$ad_env" --env-only >/dev/null 2>&1; then
+  echo "Falha: o preflight aceitou AD ativo sem configuração segura." >&2
   exit 1
 fi
 

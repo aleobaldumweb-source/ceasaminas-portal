@@ -16,6 +16,16 @@ Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_SECURE` e, quando exigido
 pois ela é usada para gerar o link de redefinição de senha. Antes da publicação, envie uma
 recuperação para uma conta de teste e confirme entrega, expiração e uso único do link.
 
+## Active Directory
+
+O login pode autenticar usuários no Active Directory via LDAPS, mantendo papel, sessões e auditoria
+no PostgreSQL. Configure uma conta de serviço somente leitura, a base de busca e os grupos associados
+a `ADMIN`, `EDITOR`, `JOURNALIST` e `AUDITOR`. Em produção, `AD_URL` deve usar `ldaps://`.
+
+Usuários fora dos grupos configurados são recusados. A senha do domínio não é armazenada e contas
+do diretório não usam recuperação de senha local. Mantenha ao menos uma conta `LOCAL` administrativa
+como contingência e valide cadeia TLS, login, remoção de grupo e indisponibilidade do AD antes do go-live.
+
 Antes do primeiro deploy no Ubuntu, valide arquivo, segredos, Docker, Compose, portas e renderização
 da stack. O preflight não envia dados nem inicia serviços:
 

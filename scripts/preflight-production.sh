@@ -102,6 +102,34 @@ done
   exit 1
 }
 
+if [[ ${config[AD_ENABLED]:-false} == true ]]; then
+  for key in AD_URL AD_BIND_DN AD_BIND_PASSWORD AD_BASE_DN AD_USER_FILTER; do
+    [[ -n ${config[$key]:-} && ! ${config[$key]} =~ (substitua|exemplo) ]] || {
+      echo "Falha: $key é obrigatória e não pode conter exemplo quando AD_ENABLED=true." >&2
+      exit 1
+    }
+  done
+  [[ ${config[AD_URL]} == ldaps://* ]] || {
+    echo "Falha: AD_URL deve usar ldaps:// em produção." >&2
+    exit 1
+  }
+  [[ ${config[AD_USER_FILTER]} == *'{email}'* ]] || {
+    echo "Falha: AD_USER_FILTER deve conter {email}." >&2
+    exit 1
+  }
+  groups=0
+  for key in AD_ADMIN_GROUP AD_EDITOR_GROUP AD_JOURNALIST_GROUP AD_AUDITOR_GROUP; do
+    [[ -n ${config[$key]:-} ]] && groups=$((groups + 1))
+  done
+  ((groups > 0)) || {
+    echo "Falha: configure ao menos um grupo autorizado do Active Directory." >&2
+    exit 1
+  }
+elif [[ ${config[AD_ENABLED]:-false} != false ]]; then
+  echo "Falha: AD_ENABLED deve ser true ou false." >&2
+  exit 1
+fi
+
 if [[ $env_only == true ]]; then
   echo "Preflight de variáveis concluído com sucesso."
   exit 0

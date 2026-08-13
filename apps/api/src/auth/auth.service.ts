@@ -16,6 +16,7 @@ import type { BootstrapAdminDto } from './dto/bootstrap-admin.dto.js';
 import type { ForgotPasswordDto } from './dto/forgot-password.dto.js';
 import type { ResetPasswordDto } from './dto/reset-password.dto.js';
 import { MailService } from './mail.service.js';
+import { DirectoryAuthService } from './directory-auth.service.js';
 
 type RequestMeta = {
   ipAddress?: string;
@@ -29,14 +30,17 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     @Optional() private readonly mailService?: MailService,
+    @Optional() private readonly directoryAuthService?: DirectoryAuthService,
   ) {}
 
   async forgotPassword(dto: ForgotPasswordDto) {
     const user = await prisma.user.findUnique({
       where: { email: dto.email.trim().toLowerCase() },
-      select: { id: true, email: true, name: true, status: true },
+      select: { id: true, email: true, name: true, status: true, authProvider: true },
     });
-    if (!user || user.status !== 'ACTIVE') return { accepted: true };
+    if (!user || user.status !== 'ACTIVE' || user.authProvider !== 'LOCAL') {
+      return { accepted: true };
+    }
 
     const token = randomBytes(32).toString('base64url');
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
@@ -146,13 +150,18 @@ export class AuthService {
 
   async login(dto: LoginDto, meta: RequestMeta) {
     const email = dto.email.trim().toLowerCase();
-    const user = await prisma.user.findUnique({ where: { email } });
+    const directoryIdentity = await this.directoryAuthService?.authenticate(email, dto.password);
+    const user = directoryIdentity
+      ? await this.provisionDirectoryUser(directoryIdentity)
+      : await prisma.user.findUnique({ where: { email } });
 
     if (!user || user.status !== 'ACTIVE') {
       throw new UnauthorizedException('E-mail ou senha inválidos.');
     }
 
-    const passwordIsValid = await compare(dto.password, user.passwordHash);
+    const passwordIsValid = directoryIdentity
+      ? user.authProvider === 'DIRECTORY'
+      : user.authProvider === 'LOCAL' && (await compare(dto.password, user.passwordHash));
     if (!passwordIsValid) {
       throw new UnauthorizedException('E-mail ou senha inválidos.');
     }
@@ -205,6 +214,43 @@ export class AuthService {
       refreshToken,
       user: authUser,
     };
+  }
+
+  private async provisionDirectoryUser(identity: {
+    directoryId: string;
+    email: string;
+    name: string;
+    role: Role;
+  }) {
+    const email = identity.email.trim().toLowerCase();
+    const existing = await prisma.user.findFirst({
+      where: { OR: [{ directoryId: identity.directoryId }, { email }] },
+    });
+    if (existing?.authProvider === 'LOCAL') {
+      this.logger.warn({ event: 'directory_local_account_collision' });
+      throw new UnauthorizedException('E-mail ou senha inválidos.');
+    }
+    if (existing) {
+      return prisma.user.update({
+        where: { id: existing.id },
+        data: {
+          name: identity.name.trim(),
+          email,
+          role: identity.role,
+          directoryId: identity.directoryId,
+        },
+      });
+    }
+    return prisma.user.create({
+      data: {
+        name: identity.name.trim(),
+        email,
+        passwordHash: await hash(randomBytes(32).toString('hex'), 12),
+        role: identity.role,
+        authProvider: 'DIRECTORY',
+        directoryId: identity.directoryId,
+      },
+    });
   }
 
   async refresh(refreshToken: string | undefined, meta: RequestMeta) {

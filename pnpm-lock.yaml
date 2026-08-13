@@ -108,6 +108,9 @@ importers:
       helmet:
         specifier: ^8.3.0
         version: 8.3.0
+      ldapts:
+        specifier: ^9.0.0
+        version: 9.0.0
       multer:
         specifier: ^2.2.0
         version: 2.2.0
@@ -2427,6 +2430,13 @@ packages:
   helmet@8.3.0:
     resolution: {integrity: sha512-Qgpiaws3Sm30Av8Eah6sjMCZZwjlBu+E68rhpCWBshY1lb09HtLwj5GviX0OyQIn+ulUS0iX0AxN5n3tLZzz1w==}
     engines: {node: '>=18.0.0'}
+
+  ldapts@9.0.0:
+    resolution: {integrity: sha512-OaaoYBSuan7g0Nm2e1wsRl+9xol41zY+pDlRRSsBq36iKCd2tG/K8WifevNRDjyEfhz4bvkxKdDvJ6xHXwj7+Q==}
+    engines: {node: '>=22'}
+
+  strict-event-emitter-types@2.0.0:
+    resolution: {integrity: sha512-Nk/brWYpD85WlOgzw5h173aci0Teyv8YdIAEtV+N88nDB0dLlazZyJMIsN6eo1/AR61l+p6CJTG1JIyFaoNEEA==}
 
   hono@4.12.30:
     resolution: {integrity: sha512-emn+JoJjrN9YTpRDS5it/UI2SO9BAE37T6I3d963RxcZ81G9A4pr2SZTEiiaiKbzx+NKRg5BZ89fCL7gCJCUog==}
@@ -6352,6 +6362,12 @@ snapshots:
       function-bind: 1.1.2
 
   helmet@8.3.0: {}
+
+  ldapts@9.0.0:
+    dependencies:
+      strict-event-emitter-types: 2.0.0
+
+  strict-event-emitter-types@2.0.0: {}
 
   hono@4.12.30: {}
 
