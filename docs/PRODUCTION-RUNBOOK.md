@@ -90,6 +90,20 @@ Agende `backup-production.ps1` diariamente e copie os artefatos para outro local
 30 dias. Teste a restauração em ambiente isolado pelo menos uma vez por trimestre. Nunca restaure
 sobre produção sem janela aprovada e backup imediatamente anterior.
 
+No Ubuntu, instale o timer diário das 02h informando caminhos absolutos:
+
+```bash
+sudo ./scripts/install-backup-timer.sh \
+  --project-dir /opt/ceasaminas \
+  --backup-dir /var/backups/ceasaminas
+sudo systemctl start ceasaminas-backup.service
+sudo journalctl -u ceasaminas-backup.service --since today
+```
+
+O timer usa atraso aleatório de até 15 minutos, recupera uma execução perdida após reinicialização e
+mantém a configuração em `/etc/ceasaminas/backup.conf` com permissão `0600`. O destino ainda deve
+ser copiado ou sincronizado para armazenamento externo criptografado.
+
 O script de restauração exige os dois artefatos do mesmo ciclo e uma confirmação explícita. Ele
 valida os arquivos, interrompe a API, substitui o banco e os uploads e reinicia o serviço. Execute-o
 somente durante uma janela aprovada:

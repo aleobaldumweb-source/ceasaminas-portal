@@ -1,0 +1,11 @@
+[Unit]
+Description=Agenda o backup diário da plataforma Ceasaminas
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+RandomizedDelaySec=15m
+Persistent=true
+Unit=ceasaminas-backup.service
+
+[Install]
+WantedBy=timers.target
