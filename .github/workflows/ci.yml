@@ -96,6 +96,7 @@ jobs:
           ./scripts/test-production-verify.sh
           ./scripts/test-production-update.sh
           ./scripts/test-backup-timer-install.sh
+          ./scripts/test-production-monitor.sh
 
       - name: Lint
         run: pnpm lint

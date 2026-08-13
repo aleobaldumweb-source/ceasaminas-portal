@@ -1,0 +1,11 @@
+[Unit]
+Description=Monitor de saúde da plataforma Ceasaminas
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/ceasaminas/monitor.conf
+ExecStart=/usr/bin/bash ${PROJECT_DIR}/scripts/monitor-production.sh --env-file ${ENV_FILE} --state-dir ${STATE_DIR} --disk-path ${DISK_PATH} --disk-threshold ${DISK_THRESHOLD}
+PrivateTmp=true
+NoNewPrivileges=true

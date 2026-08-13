@@ -132,6 +132,18 @@ ambiente de hospedagem.
 
 ## Monitoramento mínimo
 
+Instale o monitor local no Ubuntu depois que DNS e HTTPS estiverem funcionais:
+
+```bash
+sudo ./scripts/install-monitor-timer.sh --project-dir /opt/ceasaminas
+sudo systemctl start ceasaminas-monitor.service
+sudo journalctl -u ceasaminas-monitor.service --since today
+```
+
+O timer executa a cada cinco minutos, sinaliza falha após três verificações públicas consecutivas e
+falha imediatamente com uso de disco a partir de 80%. Estados `CRITICAL` e `RECOVERY` ficam no
+journal para integração com o coletor/alerta escolhido pela operação.
+
 - consultar `/api/v1/health/live` para processo e `/api/v1/health` para PostgreSQL, Redis e uploads;
 - alertar após três falhas consecutivas ou uso de disco acima de 80%;
 - coletar logs do Docker fora do servidor e configurar retenção;
