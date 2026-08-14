@@ -1,12 +1,21 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { Inject, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { Client, type Entry } from 'ldapts';
 import { Role } from './auth.types.js';
 
 export type DirectoryIdentity = { directoryId: string; email: string; name: string; role: Role };
+export const DIRECTORY_CLIENT_FACTORY = Symbol('DIRECTORY_CLIENT_FACTORY');
+export type DirectoryClient = Pick<Client, 'bind' | 'search' | 'unbind'>;
+export type DirectoryClientFactory = (
+  options: ConstructorParameters<typeof Client>[0],
+) => DirectoryClient;
 
 @Injectable()
 export class DirectoryAuthService {
   private readonly logger = new Logger(DirectoryAuthService.name);
+
+  constructor(
+    @Inject(DIRECTORY_CLIENT_FACTORY) private readonly clientFactory: DirectoryClientFactory,
+  ) {}
 
   enabled(environment: NodeJS.ProcessEnv = process.env) {
     return environment.AD_ENABLED?.trim().toLowerCase() === 'true';
@@ -15,7 +24,7 @@ export class DirectoryAuthService {
   async authenticate(email: string, password: string): Promise<DirectoryIdentity | null> {
     if (!this.enabled()) return null;
     const config = this.config();
-    const client = new Client({
+    const client = this.clientFactory({
       url: config.url,
       timeout: config.timeout,
       connectTimeout: config.timeout,
