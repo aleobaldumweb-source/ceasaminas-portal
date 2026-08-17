@@ -1,5 +1,8 @@
 # Operação em produção
 
+Use este runbook em conjunto com `PRODUCTION-ACCEPTANCE-CHECKLIST.md`. O runbook descreve os
+procedimentos; o checklist registra as evidências e aprovações exigidas para o go-live.
+
 ## Pré-requisitos
 
 - servidor Linux com Docker Engine e Compose;
