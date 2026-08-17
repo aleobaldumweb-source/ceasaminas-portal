@@ -8,7 +8,7 @@
     "start": "nest start",
     "lint": "eslint \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
-    "test": "pnpm build && node --test scripts/secret-prompt.test.mjs scripts/authorization.test.mjs scripts/authorization-http.test.mjs scripts/jwt-strategy.test.mjs scripts/user-password-policy.test.mjs scripts/users-service.test.mjs scripts/procurements-service.test.mjs scripts/health.test.mjs scripts/runtime-config.test.mjs scripts/database-lifecycle.test.mjs scripts/local-storage.test.mjs scripts/request-logging.test.mjs scripts/news-database.test.mjs scripts/procurements-database.test.mjs scripts/auth-database.test.mjs scripts/auth-http-database.test.mjs scripts/users-database.test.mjs scripts/market-database.test.mjs scripts/transparency-database.test.mjs",
+    "test": "pnpm build && node --test scripts/directory-auth.test.mjs scripts/secret-prompt.test.mjs scripts/authorization.test.mjs scripts/authorization-http.test.mjs scripts/jwt-strategy.test.mjs scripts/user-password-policy.test.mjs scripts/users-service.test.mjs scripts/procurements-service.test.mjs scripts/health.test.mjs scripts/runtime-config.test.mjs scripts/database-lifecycle.test.mjs scripts/local-storage.test.mjs scripts/request-logging.test.mjs scripts/news-database.test.mjs scripts/procurements-database.test.mjs scripts/auth-database.test.mjs scripts/auth-http-database.test.mjs scripts/users-database.test.mjs scripts/market-database.test.mjs scripts/transparency-database.test.mjs",
     "test:admin-scripts": "node --test scripts/secret-prompt.test.mjs"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "dotenv": "^17.4.2",
     "express-rate-limit": "^8.6.0",
     "helmet": "^8.3.0",
+    "ldapts": "^9.0.0",
     "multer": "^2.2.0",
     "nodemailer": "^9.0.5",
     "passport": "^0.7.0",

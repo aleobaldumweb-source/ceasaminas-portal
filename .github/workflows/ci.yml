@@ -88,6 +88,16 @@ jobs:
       - name: Check formatting
         run: pnpm format:check
 
+      - name: Check production shell scripts
+        run: |
+          bash -n scripts/*.sh
+          ./scripts/test-production-preflight.sh
+          ./scripts/test-production-deploy.sh
+          ./scripts/test-production-verify.sh
+          ./scripts/test-production-update.sh
+          ./scripts/test-backup-timer-install.sh
+          ./scripts/test-production-monitor.sh
+
       - name: Lint
         run: pnpm lint
 

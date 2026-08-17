@@ -87,6 +87,17 @@ services:
       SMTP_SECURE: ${SMTP_SECURE:-false}
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      AD_ENABLED: ${AD_ENABLED:-false}
+      AD_URL: ${AD_URL:-}
+      AD_BIND_DN: ${AD_BIND_DN:-}
+      AD_BIND_PASSWORD: ${AD_BIND_PASSWORD:-}
+      AD_BASE_DN: ${AD_BASE_DN:-}
+      AD_USER_FILTER: ${AD_USER_FILTER:-(userPrincipalName={email})}
+      AD_ADMIN_GROUP: ${AD_ADMIN_GROUP:-}
+      AD_EDITOR_GROUP: ${AD_EDITOR_GROUP:-}
+      AD_JOURNALIST_GROUP: ${AD_JOURNALIST_GROUP:-}
+      AD_AUDITOR_GROUP: ${AD_AUDITOR_GROUP:-}
+      AD_TIMEOUT_MS: ${AD_TIMEOUT_MS:-5000}
     volumes:
       - uploads_data:/app/apps/api/uploads
     depends_on:

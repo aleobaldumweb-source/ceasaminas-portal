@@ -24,6 +24,15 @@ deploy/.env.production
 # Logs
 *.log
 
+# Local and historical source backups
+backup-*/
+teste/
+*.bak
+*.bak-*
+*.backup
+*.backup-*
+*_old
+
 # Runtime uploads
 apps/api/uploads
 

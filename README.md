@@ -82,10 +82,14 @@ segredos reais nunca devem ser versionados.
 ## Estado e limitações
 
 O repositório contém um MVP funcional com recuperação de senha por e-mail, testes de API e
-persistência e uma suíte E2E inicial para os fluxos públicos e de autenticação em desktop e mobile.
-Ainda faltam homologação da infraestrutura, acessibilidade, desempenho, restauração e monitoramento
-no ambiente real. A existência dos artefatos de deploy não comprova prontidão operacional sem essa
-homologação.
+persistência e testes E2E dos fluxos públicos, de autenticação e de uma mutação administrativa
+completa em desktop e mobile. A CI também verifica acessibilidade automatizada, orçamentos de
+desempenho, scripts operacionais e imagens Docker.
+
+A conclusão técnica do código não comprova prontidão operacional. DNS, TLS, SMTP, LDAPS, backup
+externo, restauração, alertas, capacidade, acessibilidade manual e desempenho na URL pública devem
+ser homologados no ambiente real. Registre as evidências em
+`docs/PRODUCTION-ACCEPTANCE-CHECKLIST.md` antes de declarar o serviço apto à produção.
 
 As regras de contribuição e entrega estão em `AGENTS.md` e
 `docs/DELIVERY-PLAYBOOK.md`.
